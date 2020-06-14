@@ -6,8 +6,12 @@ from pandas import read_table
 
 from .types import ReturnType, EntrezDatabaseType, CommandType
 
+from pathlib import Path
+
+
 # https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly
-entrez_databases = read_table('entrez_databases.tsv')
+data_path = (Path(__file__).parent / '../data').resolve()
+entrez_databases = read_table(data_path / 'entrez_databases.tsv')
 
 entrez_database_codes = entrez_databases['E-utility Database Name'].tolist()
 

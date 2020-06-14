@@ -2,6 +2,8 @@ import requests
 from requests import Response
 from typing import Dict, List
 from xml.etree import ElementTree
+from copy import copy
+from .batch import suport_batches
 
 from .types import ReturnType, DataType, EntrezDatabaseType, CommandType
 from .queries import EntrezQuery, SearchQuery, SummaryQuery, FetchQuery, LinkQuery
@@ -38,7 +40,6 @@ class EntrezResponse:
 
 
 class EntrezAPI:
-
     server = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
 
     def __init__(
@@ -49,6 +50,8 @@ class EntrezAPI:
         self.email = email
         self.api_key = api_key
         self.return_type = return_type
+        self._batch_size: int = None
+        self._batch_sleep_interval: int = 3
 
     def _base_params(self) -> Dict[str, str]:
         return {
@@ -85,6 +88,13 @@ class EntrezAPI:
         query = SearchQuery(term=term, max_results=max_results, database=database)
         return self._request(query=query)
 
+    def in_batches_off(self, size: int = 100, sleep_interval: int = 3):
+        batch_mode = copy(self)
+        batch_mode._batch_size = size
+        batch_mode._batch_sleep_interval = sleep_interval
+        return batch_mode
+
+    @suport_batches
     def summarize(
         self, ids: List[str], max_results: int,
         database: EntrezDatabaseType = 'pubmed'
@@ -92,6 +102,7 @@ class EntrezAPI:
         query = SummaryQuery(ids=ids, max_results=max_results, database=database)
         return self._request(query=query)
 
+    @suport_batches
     def fetch(
         self, ids: List[str], max_results: int,
         database: EntrezDatabaseType = 'pubmed', return_type: ReturnType = 'xml'
@@ -99,6 +110,7 @@ class EntrezAPI:
         query = FetchQuery(ids=ids, max_results=max_results, database=database, return_type=return_type)
         return self._request(query=query)
 
+    @suport_batches
     def link(
         self,
         # required
