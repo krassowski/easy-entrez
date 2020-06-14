@@ -4,6 +4,8 @@ from time import sleep
 from typing import Iterable
 from warnings import warn
 
+from requests import RequestException
+
 
 try:
     from tqdm import tqdm
@@ -41,8 +43,11 @@ def suport_batches(func):
                     try:
                         batch_result = func(self, batch, *args, **kwargs)
                         done = True
-                    except Exception as e:
-                        warn(f'Failed to fetch for {i}-th batch, retrying in {interval * 2} seconds')
+                    except RequestException as e:
+                        warn(
+                            f'Failed to fetch for {i}-th batch, retrying in {interval * 2} seconds.'
+                            f' the reason was: {e}'
+                        )
                         sleep(interval * 2)
 
                 by_batch[tuple(batch)] = batch_result

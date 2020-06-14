@@ -4,7 +4,6 @@ from typing import Dict, List
 from xml.etree import ElementTree
 from copy import copy
 from time import time, sleep
-from datetime import timedelta
 
 from .batch import suport_batches
 from .types import ReturnType, DataType, EntrezDatabaseType, CommandType
@@ -88,7 +87,7 @@ class EntrezAPI:
             elapsed = current_time - self._last_request_time
             if elapsed < self.minimal_interval:
                 to_wait = self.minimal_interval - elapsed
-                sleep(to_wait.seconds)
+                sleep(to_wait)
         self._last_request_time = current_time
 
         if query.method == 'get':
