@@ -3,8 +3,8 @@ from requests import Response
 from typing import Dict, List
 from xml.etree import ElementTree
 
-from .types import ReturnType, DataType, EntrezDatabaseType
-from .queries import EntrezQuery, SearchQuery, SummaryQuery, FetchQuery
+from .types import ReturnType, DataType, EntrezDatabaseType, CommandType
+from .queries import EntrezQuery, SearchQuery, SummaryQuery, FetchQuery, LinkQuery
 
 
 class EntrezResponse:
@@ -43,7 +43,7 @@ class EntrezAPI:
 
     def __init__(
         self, tool: str, email: str, api_key=None,
-        return_type: ReturnType ='json'
+        return_type: ReturnType = 'json'
     ):
         self.tool = tool
         self.email = email
@@ -58,7 +58,7 @@ class EntrezAPI:
             'retmode': self.return_type
         }
 
-    def _request(self, query: EntrezQuery, custom_payload=None):
+    def _request(self, query: EntrezQuery, custom_payload=None) -> EntrezResponse:
         url = f'{self.server}{query.endpoint}{query.endpoint_suffix}'
 
         data = {
@@ -97,4 +97,19 @@ class EntrezAPI:
         database: EntrezDatabaseType = 'pubmed', return_type: ReturnType = 'xml'
     ):
         query = FetchQuery(ids=ids, max_results=max_results, database=database, return_type=return_type)
+        return self._request(query=query)
+
+    def link(
+        self,
+        # required
+        ids: List[str],
+        database_to: EntrezDatabaseType,
+        database_from: EntrezDatabaseType,
+        # optional
+        command: CommandType = 'neighbor'
+    ):
+        query = LinkQuery(
+            ids=ids, database=database_to, database_from=database_from,
+            command=command
+        )
         return self._request(query=query)

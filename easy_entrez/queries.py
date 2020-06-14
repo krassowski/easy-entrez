@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from pandas import read_table
 
-from .types import ReturnType, EntrezDatabaseType
+from .types import ReturnType, EntrezDatabaseType, CommandType
 
 # https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly
 entrez_databases = read_table('entrez_databases.tsv')
@@ -133,7 +133,7 @@ class FetchQuery(SummaryQuery):
 
 
 @dataclass
-class LinkQuery(SummaryQuery):
+class LinkQuery(EntrezQuery):
     """
     Functions:
         Returns UIDs linked to an input set of UIDs in either the same or a different Entrez database
@@ -148,3 +148,4 @@ class LinkQuery(SummaryQuery):
     endpoint = 'elink'
 
     database_from: EntrezDatabaseType
+    command: CommandType = 'neighbor'

@@ -46,3 +46,16 @@ EntrezDatabaseType = Literal[
     'unigene',
     'unists'
 ]
+
+
+CommandType = Literal[
+    'neighbor',
+    'neighbor_score',
+    'neighbor_history',
+    'acheck',
+    'ncheck',
+    'lcheck',
+    'llinks',
+    'llinkslib',
+    'prlinks'
+]
