@@ -12,10 +12,10 @@ except ImportError:
         return iterable
 
 
-def batches(data, batch_size=100):
+def batches(data, size=100):
     return [
-        data[i * batch_size:(i + 1) * batch_size]
-        for i in range(0, ceil(len(data) / batch_size))
+        data[i * size:(i + 1) * size]
+        for i in range(0, ceil(len(data) / size))
     ]
 
 
@@ -39,9 +39,9 @@ def suport_batches(func):
 
                 while not done:
                     try:
-                        batch_result = func(self, *args, **kwargs)
+                        batch_result = func(self, batch, *args, **kwargs)
                         done = True
-                    except Exception:
+                    except Exception as e:
                         warn(f'Failed to fetch for {i}-th batch, retrying in {interval * 2} seconds')
                         sleep(interval * 2)
 

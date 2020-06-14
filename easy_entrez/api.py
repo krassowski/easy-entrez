@@ -3,8 +3,10 @@ from requests import Response
 from typing import Dict, List
 from xml.etree import ElementTree
 from copy import copy
-from .batch import suport_batches
+from time import time, sleep
+from datetime import timedelta
 
+from .batch import suport_batches
 from .types import ReturnType, DataType, EntrezDatabaseType, CommandType
 from .queries import EntrezQuery, SearchQuery, SummaryQuery, FetchQuery, LinkQuery
 
@@ -44,14 +46,24 @@ class EntrezAPI:
 
     def __init__(
         self, tool: str, email: str, api_key=None,
-        return_type: ReturnType = 'json'
+        return_type: ReturnType = 'json',
+        minimal_interval: int = 1 / 3
     ):
+        """
+        Args:
+            minimal_interval: the time interval (seconds) to be enforced between consecutive requests;
+              by default 1/3 of a second to comply with the Entrez guidelines,
+              but you may increase it if you want to be kind to others,
+              or decrease it if you have an API key with an appropriate consent from Entrez.
+        """
         self.tool = tool
         self.email = email
         self.api_key = api_key
         self.return_type = return_type
+        self.minimal_interval = minimal_interval
         self._batch_size: int = None
         self._batch_sleep_interval: int = 3
+        self._last_request_time = None
 
     def _base_params(self) -> Dict[str, str]:
         return {
@@ -71,6 +83,14 @@ class EntrezAPI:
             **(custom_payload or {})
         }
 
+        current_time = time()
+        if self._last_request_time is not None:
+            elapsed = current_time - self._last_request_time
+            if elapsed < self.minimal_interval:
+                to_wait = self.minimal_interval - elapsed
+                sleep(to_wait.seconds)
+        self._last_request_time = current_time
+
         if query.method == 'get':
             response = requests.get(url, params=data)
         elif query.method == 'post':
@@ -88,7 +108,7 @@ class EntrezAPI:
         query = SearchQuery(term=term, max_results=max_results, database=database)
         return self._request(query=query)
 
-    def in_batches_off(self, size: int = 100, sleep_interval: int = 3):
+    def in_batches_of(self, size: int = 100, sleep_interval: int = 3):
         batch_mode = copy(self)
         batch_mode._batch_size = size
         batch_mode._batch_sleep_interval = sleep_interval
