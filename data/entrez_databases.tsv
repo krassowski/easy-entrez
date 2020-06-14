@@ -1,0 +1,37 @@
+Entrez Database	UID common name	E-utility Database Name
+BioProject	BioProject ID	bioproject
+BioSample	BioSample ID	biosample
+Biosystems	BSID	biosystems
+Books	Book ID	books
+Conserved Domains	PSSM-ID	cdd
+dbGaP	dbGaP ID	gap
+dbVar	dbVar ID	dbvar
+Epigenomics	Epigenomics ID	epigenomics
+EST	GI number	nucest
+Gene	Gene ID	gene
+Genome	Genome ID	genome
+GEO Datasets	GDS ID	gds
+GEO Profiles	GEO ID	geoprofiles
+GSS	GI number	nucgss
+HomoloGene	HomoloGene ID	homologene
+MeSH	MeSH ID	mesh
+NCBI C++ Toolkit	Toolkit ID	toolkit
+NCBI Web Site	Web Site ID	ncbisearch
+NLM Catalog	NLM Catalog ID	nlmcatalog
+Nucleotide	GI number	nuccore
+OMIA	OMIA ID	omia
+PopSet	PopSet ID	popset
+Probe	Probe ID	probe
+Protein	GI number	protein
+Protein Clusters	Protein Cluster ID	proteinclusters
+PubChem BioAssay	AID	pcassay
+PubChem Compound	CID	pccompound
+PubChem Substance	SID	pcsubstance
+PubMed	PMID	pubmed
+PubMed Central	PMCID	pmc
+SNP	rs number	snp
+SRA	SRA ID	sra
+Structure	MMDB-ID	structure
+Taxonomy	TaxID	taxonomy
+UniGene	UniGene Cluster ID	unigene
+UniSTS	STS ID	unists
