@@ -40,13 +40,21 @@ def suport_batches(func):
                 done = False
 
                 while not done:
+                    reason = None
                     try:
                         batch_result = func(self, batch, *args, **kwargs)
-                        done = True
+                        code = batch_result.response.status_code
+                        if code == 200:
+                            done = True
+                        else:
+                            reason = f'Status code != 200 (= {code})'
                     except RequestException as e:
+                        reason = e
+
+                    if not done:
                         warn(
                             f'Failed to fetch for {i}-th batch, retrying in {interval * 2} seconds.'
-                            f' the reason was: {e}'
+                            f' The reason was: {reason}'
                         )
                         sleep(interval * 2)
 
