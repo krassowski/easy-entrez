@@ -46,7 +46,8 @@ class EntrezAPI:
     def __init__(
         self, tool: str, email: str, api_key=None,
         return_type: ReturnType = 'json',
-        minimal_interval: int = 1 / 3
+        minimal_interval: int = 1 / 3,
+        timeout: int = 10
     ):
         """
         Args:
@@ -63,6 +64,7 @@ class EntrezAPI:
         self._batch_size: int = None
         self._batch_sleep_interval: int = 3
         self._last_request_time = None
+        self.timeout = timeout
 
     def _base_params(self) -> Dict[str, str]:
         return {
@@ -91,9 +93,9 @@ class EntrezAPI:
         self._last_request_time = current_time
 
         if query.method == 'get':
-            response = requests.get(url, params=data)
+            response = requests.get(url, params=data, timeout=self.timeout)
         elif query.method == 'post':
-            response = requests.post(url, data=data)
+            response = requests.post(url, data=data, timeout=self.timeout)
         else:
             raise ValueError(f'Incorrect query method: {query.method}')
 
