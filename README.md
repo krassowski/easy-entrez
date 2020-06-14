@@ -22,7 +22,7 @@ result = entrez_api.search('cancer AND human[organism]', max_results=10_000)
 result.data
 ```
 
-See more in the [Demo notebook] (./Demo.ipynb).
+See more in the [Demo notebook](./Demo.ipynb).
 
 
 Alternatives:
