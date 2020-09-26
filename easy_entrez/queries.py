@@ -43,7 +43,7 @@ class EntrezQuery:
 
     def to_params(self) -> Dict[str, str]:
         """Convert to params which can be accepted by Entrez"""
-        # TODO maybe use pydantic isntead?
+        # TODO maybe use pydantic instead?
         self.validate()
         params = {}
         if self.database:

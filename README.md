@@ -38,6 +38,12 @@ Requires Python 3.6+. Install with:
 pip install easy-entrez
 ```
 
+If you wish to enable (optional, tqdm-based) progress bars use:
+
+```bash
+pip install easy-entrez[with_progress_bars]
+```
+
 ### Alternatives:
 
 - [biopython.Entrez](https://biopython.org/docs/1.74/api/Bio.Entrez.html)
