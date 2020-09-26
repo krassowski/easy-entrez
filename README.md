@@ -1,9 +1,13 @@
 # easy-entrez
 
-**Goal:** Create Python REST API for Entrez E-Utilities, which will be easy to use and reliable, but limited in scope (no stateful/history queries).
+Python REST API for Entrez E-Utilities, aiming to  be easy to use and reliable.
+
+While other packages attempt to use stateful extensions (queries with history) which is error-prone and led to misleading results, this implementation:
+ - avoids the problem altogether by not using such stateful API,
+ - makes common tasks easy thanks to Pythonic API,
+ - is typed and integrates well with mypy
 
 **Stats:** Beta
-
 
 ```python
 from easy_entrez import EntrezAPI
