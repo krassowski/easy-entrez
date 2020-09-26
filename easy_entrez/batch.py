@@ -1,7 +1,7 @@
 from functools import wraps
 from math import ceil
 from time import sleep
-from typing import Iterable
+from typing import Sequence
 from warnings import warn
 
 from requests import RequestException
@@ -21,7 +21,7 @@ def batches(data, size=100):
     ]
 
 
-def suport_batches(func):
+def support_batches(func):
     """
     Call the decorated functions with the collection from the first argument
     (second if counting with self) split into batches, resuming on failures
@@ -29,7 +29,7 @@ def suport_batches(func):
     """
 
     @wraps(func)
-    def batches_support_wrapper(self: 'EntrezAPI', collection: Iterable, *args, **kwargs):
+    def batches_support_wrapper(self: 'EntrezAPI', collection: Sequence, *args, **kwargs):
         size = self._batch_size
         interval = self._batch_sleep_interval
         if size is not None:

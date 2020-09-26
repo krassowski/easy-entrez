@@ -5,7 +5,7 @@ from xml.etree import ElementTree
 from copy import copy
 from time import time, sleep
 
-from .batch import suport_batches
+from .batch import support_batches
 from .types import ReturnType, DataType, EntrezDatabaseType, CommandType
 from .queries import EntrezQuery, SearchQuery, SummaryQuery, FetchQuery, LinkQuery
 
@@ -115,7 +115,7 @@ class EntrezAPI:
         batch_mode._batch_sleep_interval = sleep_interval
         return batch_mode
 
-    @suport_batches
+    @support_batches
     def summarize(
         self, ids: List[str], max_results: int,
         database: EntrezDatabaseType = 'pubmed'
@@ -123,7 +123,7 @@ class EntrezAPI:
         query = SummaryQuery(ids=ids, max_results=max_results, database=database)
         return self._request(query=query)
 
-    @suport_batches
+    @support_batches
     def fetch(
         self, ids: List[str], max_results: int,
         database: EntrezDatabaseType = 'pubmed', return_type: ReturnType = 'xml'
@@ -131,7 +131,7 @@ class EntrezAPI:
         query = FetchQuery(ids=ids, max_results=max_results, database=database, return_type=return_type)
         return self._request(query=query)
 
-    @suport_batches
+    @support_batches
     def link(
         self,
         # required
