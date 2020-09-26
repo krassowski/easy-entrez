@@ -2,7 +2,7 @@
 
 **Goal:** Create Python REST API for Entrez E-Utilities, which will be easy to use and reliable, but limited in scope (no stateful/history queries).
 
-**Stats:** Experimental
+**Stats:** Beta
 
 
 ```python
