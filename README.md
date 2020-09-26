@@ -25,6 +25,14 @@ result.data
 See more in the [Demo notebook](./Demo.ipynb).
 
 
+Install with:
+
+```
+pip install easy-entrez
+```
+
+
 Alternatives:
-  - [biopython.Entrez](https://biopython.org/docs/1.74/api/Bio.Entrez.html)
-  - entrezpy
+
+- [biopython.Entrez](https://biopython.org/docs/1.74/api/Bio.Entrez.html)
+- entrezpy
