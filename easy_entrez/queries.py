@@ -1,19 +1,29 @@
-from warnings import warn
-from typing import Dict, List
+from collections import defaultdict
+from csv import DictReader
 from dataclasses import dataclass
-
-from pandas import read_table
+from pathlib import Path
+from typing import Dict, List
+from warnings import warn
 
 from .types import ReturnType, EntrezDatabaseType, CommandType
 
-from pathlib import Path
+
+def _read_table(path: Path) -> Dict[str, List]:
+    """Return dict where each entry is a data column"""
+    table = defaultdict(list)
+    with open(path) as f:
+        reader = DictReader(f, delimiter='\t')
+        for row in reader:
+            for field, value in row.items():
+                table[field].append(value)
+    return table
 
 
 # https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly
 data_path = (Path(__file__).parent / 'data').resolve()
-entrez_databases = read_table(data_path / 'entrez_databases.tsv')
+entrez_databases = _read_table(data_path / 'entrez_databases.tsv')
 
-entrez_database_codes = entrez_databases['E-utility Database Name'].tolist()
+entrez_database_codes = entrez_databases['E-utility Database Name']
 
 
 @dataclass
@@ -29,7 +39,7 @@ class EntrezQuery:
 
     @property
     def uid_meaning(self):
-        return entrez_databases.set_index('E-utility Database Name')
+        return entrez_databases
 
     def to_params(self) -> Dict[str, str]:
         """Convert to params which can be accepted by Entrez"""
