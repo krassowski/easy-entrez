@@ -19,6 +19,7 @@ if __name__ == '__main__':
     setup(
         name='easy_entrez',
         packages=find_packages(),
+        package_data={'easy_entrez': ['data/*.tsv']},
         version='0.1.0',
         license='MIT',
         description='Python REST API for Entrez E-Utilities: stateless, easy to use, reliable.',
