@@ -25,14 +25,16 @@ result.data
 See more in the [Demo notebook](./Demo.ipynb).
 
 
-Install with:
+### Installation
 
-```
+Requires Python 3.6+. Install with:
+
+
+```bash
 pip install easy-entrez
 ```
 
-
-Alternatives:
+### Alternatives:
 
 - [biopython.Entrez](https://biopython.org/docs/1.74/api/Bio.Entrez.html)
 - entrezpy
