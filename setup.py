@@ -19,8 +19,10 @@ if __name__ == '__main__':
     setup(
         name='easy_entrez',
         packages=find_packages(),
-        package_data={'easy_entrez': ['data/*.tsv']},
-        version='0.1.1',
+        package_data={'easy_entrez': ['data/*.tsv', 'py.typed']},
+        # required for mypy to work
+        zip_safe=False,
+        version='0.1.2',
         license='MIT',
         description='Python REST API for Entrez E-Utilities: stateless, easy to use, reliable.',
         long_description=get_long_description('README.md'),
@@ -40,6 +42,7 @@ if __name__ == '__main__':
             'Intended Audience :: Science/Research',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7'
+            'Programming Language :: Python :: 3.8'
         ],
         install_requires=['requests'],
     )
