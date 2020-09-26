@@ -1,8 +1,9 @@
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from csv import DictReader
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Iterable, Union
 from warnings import warn
 
 from .types import ReturnType, EntrezDatabaseType, CommandType
@@ -27,15 +28,27 @@ entrez_database_codes = entrez_databases['E-utility Database Name']
 
 
 @dataclass
-class EntrezQuery:
+class EntrezQuery(ABC):
 
     database: EntrezDatabaseType
     method = 'get'
     endpoint_suffix = '.fcgi'
 
+    @property
+    @abstractmethod
+    def endpoint(self):
+        """The name of the endpoint."""
+
+    @property
+    def endpoint_uri(self):
+        return f'{self.endpoint}{self.endpoint_suffix}'
+
     def validate(self):
         if self.database not in entrez_database_codes:
             warn(f'Unknown database: {self.database}')
+
+    def __post_init__(self):
+        self.validate()
 
     @property
     def uid_meaning(self):
@@ -44,7 +57,6 @@ class EntrezQuery:
     def to_params(self) -> Dict[str, str]:
         """Convert to params which can be accepted by Entrez"""
         # TODO maybe use pydantic instead?
-        self.validate()
         params = {}
         if self.database:
             params['db'] = self.database
@@ -53,6 +65,10 @@ class EntrezQuery:
     @property
     def summary(self):
         return f'{self.__class__.__name__} in {self.database}'
+
+    def full_uri(self):
+        params = self.to_params()
+        return self.endpoint_uri + '?' + '&'.join([f'{key}={value}' for key, value in params.items()])
 
 
 @dataclass
@@ -95,6 +111,13 @@ class SearchQuery(EntrezQuery):
         return f'{self.__class__.__name__} {self.term!r} in {self.database}'
 
 
+def _serialize_ids(ids: Iterable[Union[str, int]]) -> str:
+    return ','.join([
+        str(identifier) if isinstance(identifier, int) else identifier.strip()
+        for identifier in ids
+    ])
+
+
 @dataclass
 class SummaryQuery(EntrezQuery):
     """
@@ -119,10 +142,7 @@ class SummaryQuery(EntrezQuery):
     def to_params(self) -> Dict[str, str]:
         params = super().to_params()
         params['retmax'] = str(self.max_results)
-        params['id'] = ','.join([
-            id.strip()
-            for id in self.ids
-        ])
+        params['id'] = _serialize_ids(self.ids)
         return params
 
     @property
@@ -160,6 +180,13 @@ class LinkQuery(EntrezQuery):
 
     """
     endpoint = 'elink'
+    ids: List[Union[str, int]]
 
     database_from: EntrezDatabaseType
     command: CommandType = 'neighbor'
+
+    def to_params(self) -> Dict[str, str]:
+        params = super().to_params()
+        params['dbfrom'] = self.database_from
+        params['id'] = _serialize_ids(self.ids)
+        return params

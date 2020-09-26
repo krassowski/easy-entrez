@@ -75,12 +75,15 @@ class EntrezAPI:
         }
 
     def _request(self, query: EntrezQuery, custom_payload=None) -> EntrezResponse:
-        url = f'{self.server}{query.endpoint}{query.endpoint_suffix}'
+        url = f'{self.server}{query.endpoint_uri}'
+
+        base_params = self._base_params()
+        query_params = query.to_params()
 
         data = {
             # TODO maybe warn if overwriting?
-            **self._base_params(),
-            **query.to_params(),
+            **base_params,
+            **query_params,
             **(custom_payload or {})
         }
 
