@@ -8,13 +8,14 @@ Python REST API for Entrez E-Utilities, aiming to  be easy to use and reliable.
 Previously published entrezpy implements stateful API extensions (queries with history) which is [error-prone](https://gitlab.com/ncbipy/entrezpy/-/issues/7) and led me (and others) to obtain misleading results.
 
 This implementation:
- - avoids the problem altogether by not using such stateful API,
- - makes common tasks easy thanks to simple Pythonic API,
- - is typed and integrates well with mypy,
- - tested on Windows, Mac and Linux across Python 3.6, 3.7, and 3.8,
- - is limited in scope, allowing to focus on the reliability of the core code.
 
-**Stats:** Beta
+- avoids the problem altogether by not using such stateful API,
+- makes common tasks easy thanks to simple Pythonic API,
+- is typed and integrates well with mypy,
+- tested on Windows, Mac and Linux across Python 3.6, 3.7, and 3.8,
+- is limited in scope, allowing to focus on the reliability of the core code.
+
+**Stats:** beta (pending tutorial write-up and documentation improvements before official release).
 
 ```python
 from easy_entrez import EntrezAPI
