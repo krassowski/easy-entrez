@@ -1,5 +1,15 @@
 from dataclasses import dataclass
-from typing import Dict, Union, List, Literal, get_args, TypedDict
+from typing import Dict, Union, List, TypedDict
+try:
+    from typing import Literal, get_args
+except ImportError:
+    class Literal:
+        def __getitem__(self, parameters):
+            return parameters
+
+    def get_args(annotation):
+        return annotation
+
 from xml.etree import ElementTree
 
 from .data import entrez_databases
