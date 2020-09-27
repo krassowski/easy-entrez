@@ -6,7 +6,11 @@ try:
 except ImportError:
 
     def get_args(annotation):
-        return annotation.__args__
+        try:
+            return annotation.__args__
+        except AttributeError:
+            # Python 3.6
+            return []
 
 from xml.etree import ElementTree
 
