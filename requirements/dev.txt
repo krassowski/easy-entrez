@@ -1,0 +1,4 @@
+-r ./minimal.txt
+-r ./docs.txt
+pytest
+pytest-cov
