@@ -1,1 +1,5 @@
+sphinx
+pydata-sphinx-theme
+sphinx_toolbox
 pytest
+pytest-cov

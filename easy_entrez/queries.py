@@ -1,36 +1,20 @@
 from abc import ABC, abstractmethod
-from collections import defaultdict
-from csv import DictReader
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Dict, List, Iterable, Union
+from typing import Dict, List, Iterable, Literal
 from warnings import warn
 
-from .types import ReturnType, EntrezDatabaseType, CommandType
-
-
-def _read_table(path: Path) -> Dict[str, List]:
-    """Return dict where each entry is a data column"""
-    table = defaultdict(list)
-    with open(path) as f:
-        reader = DictReader(f, delimiter='\t')
-        for row in reader:
-            for field, value in row.items():
-                table[field].append(value)
-    return table
-
-
-# https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly
-data_path = (Path(__file__).parent / 'data').resolve()
-entrez_databases = _read_table(data_path / 'entrez_databases.tsv')
-
-entrez_database_codes = entrez_databases['E-utility Database Name']
+from .types import ReturnType, EntrezDatabase, Command, Identifier, Example, Citation
+from .data import entrez_databases, entrez_database_codes
 
 
 @dataclass
 class EntrezQuery(ABC):
+    """
+    Parameters:
+        database: The database to query. Value must be a valid E-utility database name.
+    """
 
-    database: EntrezDatabaseType
+    database: EntrezDatabase
     method = 'get'
     endpoint_suffix = '.fcgi'
 
@@ -55,7 +39,7 @@ class EntrezQuery(ABC):
         return entrez_databases
 
     def to_params(self) -> Dict[str, str]:
-        """Convert to params which can be accepted by Entrez"""
+        # Convert to params which can be accepted by Entrez
         # TODO maybe use pydantic instead?
         params = {}
         if self.database:
@@ -73,23 +57,32 @@ class EntrezQuery(ABC):
 
 @dataclass
 class InfoQuery(EntrezQuery):
+    """
+    Functionality:
+        - Provides a list of the names of all valid Entrez databases
+        - Provides statistics for a single database, including lists of indexing fields and available link names
+
+    Parameters:
+        database: if not provided, will return a list of the names of all valid Entrez databases.
+    """
     endpoint = 'einfo'
 
 
 @dataclass
 class SearchQuery(EntrezQuery):
     """
-    Functions:
+    Functionality:
         - Provides a list of UIDs matching a text query
         - Posts the results of a search on the History server
         - Downloads all UIDs from a dataset stored on the History server
         - Combines or limits UID datasets stored on the History server
         - Sorts sets of UIDs
 
-    Required Parameters:
-        database: Database to search. Value must be a valid E-utility database name - see `entrez_database_codes` (default = `'pubmed'`).
+    Parameters:
+        database: Database to search.
+            Value must be a valid E-utility database name (default = :py:obj:`'pubmed'`).
         term: Entrez text query
-
+        max_results: maximal number of results to return
     """
     endpoint = 'esearch'
     term: str
@@ -111,7 +104,7 @@ class SearchQuery(EntrezQuery):
         return f'{self.__class__.__name__} {self.term!r} in {self.database}'
 
 
-def _serialize_ids(ids: Iterable[Union[str, int]]) -> str:
+def _serialize_ids(ids: Iterable[Identifier]) -> str:
     return ','.join([
         str(identifier) if isinstance(identifier, int) else identifier.strip()
         for identifier in ids
@@ -120,18 +113,22 @@ def _serialize_ids(ids: Iterable[Union[str, int]]) -> str:
 
 @dataclass
 class SummaryQuery(EntrezQuery):
-    """
-    Functions:
+    """Functionality:
         - Returns document summaries (DocSums) for a list of input UIDs
-        - Returns DocSums for a set of UIDs stored on the Entrez History server
 
-    Required Parameters:
-        database: Database to search. Value must be a valid E-utility database name - see `entrez_database_codes` (default = `'pubmed'`).
-        ids: UID list. Either a single UID or a comma-delimited list of UIDs may be provided. All of the UIDs must be from the database specified by `database`
+    Parameters:
+        database: Database from which to retrieve DocSums.
+            Value must be a valid E-utility database name (default = :py:obj:`'pubmed'`).
+        ids: UID list. Either a single UID or a comma-delimited list of UIDs may be provided.
+            All of the UIDs must be from the database specified by :py:obj:`database`.
+            There is no set maximum for the number of UIDs that can be passed to ESummary.
+            To comply with the recommendation of using HTTP POST method if lists of UIDs for ESummary is long,
+            the method is by default set to `post`.
+        max_results: maximal number of results to return
     """
     endpoint = 'esummary'
     method = 'post'
-    ids: List[str]
+    ids: List[Identifier]
     max_results: int
 
     def validate(self):
@@ -155,6 +152,18 @@ class SummaryQuery(EntrezQuery):
 class FetchQuery(SummaryQuery):
     """
     It enforces xml as a default return_type as JSON is not properly implemented by the eutilis server yet.
+
+    Functionality:
+        - Returns formatted data records for a list of input UIDs
+
+    Parameters:
+        database: Database from which to retrieve records.
+            Value must be a valid E-utility database name (default = :py:obj:`'pubmed'`).
+            Currently EFetch does not support all Entrez databases.
+            Please see `Table 1 <https://www.ncbi.nlm.nih.gov/books/n/helpeutils/chapter2/#chapter2.T._entrez_unique_identifiers_ui>`_ for a list of available databases.
+        ids: UID list. Either a single UID or a comma-delimited list of UIDs may be provided.
+            All of the UIDs must be from the database specified by :py:obj:`database`
+        max_results: maximal number of results to return
     """
     # 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=11748933,11700088&retmode=xml'
     endpoint = 'efetch'
@@ -168,25 +177,89 @@ class FetchQuery(SummaryQuery):
 
 @dataclass
 class LinkQuery(EntrezQuery):
-    """
-    Functions:
-        Returns UIDs linked to an input set of UIDs in either the same or a different Entrez database
-        Returns UIDs linked to other UIDs in the same Entrez database that match an Entrez query
-        Checks for the existence of Entrez links for a set of UIDs within the same database
-        Lists the available links for a UID
-        Lists LinkOut URLs and attributes for a set of UIDs
-        Lists hyperlinks to primary LinkOut providers for a set of UIDs
-        Creates hyperlinks to the primary LinkOut provider for a single UID
+    """Functionality:
+        - Returns UIDs linked to an input set of UIDs in either the same or a different Entrez database
+        - Returns UIDs linked to other UIDs in the same Entrez database that match an Entrez query
+        - Checks for the existence of Entrez links for a set of UIDs within the same database
+        - Lists the available links for a UID
+        - Lists LinkOut URLs and attributes for a set of UIDs
+        - Lists hyperlinks to primary LinkOut providers for a set of UIDs
+        - Creates hyperlinks to the primary LinkOut provider for a single UID
 
+    Parameters:
+        database: Database to search. Value must be a valid E-utility database name (default = :py:obj:`'pubmed'`).
+            This is the destination database for the link operation.
+        database_from: Database to search. Value must be a valid E-utility database name (default = :py:obj:`'pubmed'`).
+            This is the origin database of the link operation.
+            If :py:obj:`database` and :py:obj:`database_from` are set to the same database value,
+            then ELink will return computational neighbors within that database.
+            Please see the full list of Entrez links for available computational neighbors.
+            Computational neighbors have linknames that begin with dbname_dbname
+            (examples: protein_protein, pcassay_pcassay_activityneighbor).
+        ids: UID list. Either a single UID or a comma-delimited list of UIDs may be provided.
+            All of the UIDs must be from the database specified by :py:obj:`database_from`
+        command: ELink command mode. The command mode specifies which function ELink will perform.
     """
+    # TODO: support cmd-specific parameters
     endpoint = 'elink'
-    ids: List[Union[str, int]]
+    ids: List[Identifier]
 
-    database_from: EntrezDatabaseType
-    command: CommandType = 'neighbor'
+    database_from: EntrezDatabase
+    command: Command = 'neighbor'
 
     def to_params(self) -> Dict[str, str]:
         params = super().to_params()
         params['dbfrom'] = self.database_from
         params['id'] = _serialize_ids(self.ids)
+        params['cmd'] = self.command
         return params
+
+
+@dataclass
+class CitationQuery(EntrezQuery):
+    """Functionality:
+        - Retrieves PubMed IDs (PMIDs) that correspond to a set of input citations
+
+    Parameters:
+        database: Database to search. The only supported value is ‘pubmed’.
+        citations: Input citations (dictionaries complying the with the :py:class:`~easy_entrez.types.Citation` interface).
+    """
+    endpoint = 'ecitmatch'
+
+    database: Literal['pubmed']
+    citations: List[Citation]
+
+    def to_params(self) -> Dict[str, str]:
+        params = super().to_params()
+        params['bdata'] = '%0D'.join([
+            '|'.join([
+                citation['journal_title'].replace(' ', '+'),
+                str(citation['year']),
+                str(citation['volume']),
+                str(citation['first_page']),
+                citation['author_name'].replace(' ', '+'),
+                citation['key'].replace(' ', '+')
+            ]) + '|'
+            for citation in self.citations
+        ])
+        return params
+
+
+EXAMPLES = {
+    LinkQuery: [
+        Example(
+            name='Link from protein to gene',
+            query=LinkQuery(database_from='protein', database='gene', ids=[15718680, 157427902]),
+            uri='elink.fcgi?db=gene&dbfrom=protein&id=15718680,157427902&cmd=neighbor'
+        ),
+        Example(
+            name='Find related articles to PMID 20210808',
+            query=LinkQuery(database='pubmed', database_from='pubmed', ids=[20210808], command='neighbor_score'),
+            uri='elink.fcgi?db=pubmed&dbfrom=pubmed&id=20210808&cmd=neighbor_score'
+        )
+    ]
+}
+
+LinkQuery.__doc__ += 'Examples:\n' + '\n'.join([
+    f'\t- {example.name}:\n\t\t>>> {example.query}\n' for example in EXAMPLES[LinkQuery]
+]) + ''

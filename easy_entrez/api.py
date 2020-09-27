@@ -6,7 +6,7 @@ from copy import copy
 from time import time, sleep
 
 from .batch import support_batches
-from .types import ReturnType, DataType, EntrezDatabaseType, CommandType
+from .types import ReturnType, DataType, EntrezDatabase, CommandType
 from .queries import EntrezQuery, SearchQuery, SummaryQuery, FetchQuery, LinkQuery
 
 
@@ -106,7 +106,7 @@ class EntrezAPI:
 
     def search(
         self, term: str, max_results: int,
-        database: EntrezDatabaseType = 'pubmed', min_date=None, max_date=None
+        database: EntrezDatabase = 'pubmed', min_date=None, max_date=None
     ):
         assert not min_date and not max_date  # TODO
         query = SearchQuery(term=term, max_results=max_results, database=database)
@@ -121,7 +121,7 @@ class EntrezAPI:
     @support_batches
     def summarize(
         self, ids: List[str], max_results: int,
-        database: EntrezDatabaseType = 'pubmed'
+        database: EntrezDatabase = 'pubmed'
     ):
         query = SummaryQuery(ids=ids, max_results=max_results, database=database)
         return self._request(query=query)
@@ -129,7 +129,7 @@ class EntrezAPI:
     @support_batches
     def fetch(
         self, ids: List[str], max_results: int,
-        database: EntrezDatabaseType = 'pubmed', return_type: ReturnType = 'xml'
+        database: EntrezDatabase = 'pubmed', return_type: ReturnType = 'xml'
     ):
         query = FetchQuery(ids=ids, max_results=max_results, database=database, return_type=return_type)
         return self._request(query=query)
@@ -139,13 +139,13 @@ class EntrezAPI:
         self,
         # required
         ids: List[str],
-        database_to: EntrezDatabaseType,
-        database_from: EntrezDatabaseType,
+        database: EntrezDatabase,
+        database_from: EntrezDatabase,
         # optional
         command: CommandType = 'neighbor'
     ):
         query = LinkQuery(
-            ids=ids, database=database_to, database_from=database_from,
+            ids=ids, database=database, database_from=database_from,
             command=command
         )
         return self._request(query=query)
