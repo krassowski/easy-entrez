@@ -2,11 +2,7 @@ from collections import defaultdict
 from csv import DictReader
 from pathlib import Path
 from typing import Dict, List
-
-try:
-    from typing import TypedDict
-except ImportError:
-    TypedDict = Dict
+from typing_extensions import TypedDict
 
 
 class Table(TypedDict):

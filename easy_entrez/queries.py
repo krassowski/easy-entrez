@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Iterable, Literal
+from typing import Dict, List, Iterable
+from typing_extensions import Literal
 from warnings import warn
 
 from .types import ReturnType, EntrezDatabase, Command, Identifier, Example, Citation

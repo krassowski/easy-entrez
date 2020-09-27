@@ -1,17 +1,6 @@
 from dataclasses import dataclass
-from typing import Dict, Union, List
-try:
-    from typing import Literal, TypedDict, get_args
-except ImportError:
-    from typing import Dict
-    TypedDict = Dict
-
-    class Literal:
-        def __getitem__(self, parameters):
-            return parameters
-
-    def get_args(annotation):
-        return annotation
+from typing import Dict, Union, List, get_args
+from typing_extensions import TypedDict, Literal
 
 from xml.etree import ElementTree
 
