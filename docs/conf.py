@@ -31,6 +31,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
+    'sphinx_copybutton',
     # 'sphinx.ext.linkcode'
     # todo something like https://github.com/numpy/numpy/blob/master/doc/source/conf.py?
 ]

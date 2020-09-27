@@ -1,4 +1,5 @@
 -r ./minimal.txt
 sphinx
 pydata-sphinx-theme
-sphinx_toolbox
+sphinx-autodoc-typehints
+sphinx-copybutton
