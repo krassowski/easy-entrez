@@ -1,7 +1,12 @@
 from collections import defaultdict
 from csv import DictReader
 from pathlib import Path
-from typing import TypedDict, Dict, List
+from typing import Dict, List
+
+try:
+    from typing import TypedDict
+except ImportError:
+    TypedDict = Dict
 
 
 class Table(TypedDict):
