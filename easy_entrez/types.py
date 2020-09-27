@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Union, List, Literal, TypeVar, get_args, TypedDict
+from typing import Dict, Union, List, Literal, get_args, TypedDict
 from xml.etree import ElementTree
 
 from .data import entrez_databases
@@ -8,7 +8,7 @@ JSONType = Union[str, int, float, bool, None, Dict[str, 'JSON'], List['JSON']]  
 DataType = Union[JSONType, ElementTree.Element]
 
 
-ReturnType = TypeVar('ReturnType', Literal['json'], Literal['xml'])
+ReturnType = Literal['json', 'xml']
 
 _EntrezDatabaseType = Literal[
     'bioproject',

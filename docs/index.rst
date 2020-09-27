@@ -10,6 +10,7 @@ Easy-entrez documentation
    :maxdepth: 2
    :caption: Contents:
 
+   usage
    queries
    types
 

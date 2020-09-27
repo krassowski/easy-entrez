@@ -1,6 +1,6 @@
 import requests
 from requests import Response
-from typing import Dict, List
+from typing import Dict, List, Optional
 from xml.etree import ElementTree
 from copy import copy
 from time import time, sleep
@@ -41,27 +41,36 @@ class EntrezResponse:
 
 
 class EntrezAPI:
-    server = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
-
+    """
+    Parameters:
+        tool: Name of application making the E-utility call. Value must be a string with no internal spaces.
+        email: E-mail address of the E-utility user.
+            Value must be a string with no internal spaces, and should be a valid e-mail address.
+        api_key: Since December 2018, NCBI began enforcing the practice of using an API key
+            for users that post more than 3 requests per second.
+            Please see `Chapter 2 <https://www.ncbi.nlm.nih.gov/books/n/helpeutils/chapter2/>`_ for a full discussion of this policy.
+        return_type: Retrieval type. Determines the format of the returned output.
+        minimal_interval: The time interval (seconds) to be enforced between consecutive requests;
+          by default slightly over 1/3 of a second to comply with the Entrez guidelines,
+          but you may increase it if you want to be kind to others,
+          or decrease it if you have an API key with an appropriate consent from Entrez.
+        timeout: The timeout in seconds (default 10 seconds).
+        server: The server address.
+    """
     def __init__(
         self, tool: str, email: str, api_key=None,
         return_type: ReturnType = 'json',
-        minimal_interval: int = 1 / 3,
-        timeout: int = 10
+        minimal_interval: float = 0.334,
+        timeout: float = 10,
+        server: str = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
     ):
-        """
-        Args:
-            minimal_interval: the time interval (seconds) to be enforced between consecutive requests;
-              by default 1/3 of a second to comply with the Entrez guidelines,
-              but you may increase it if you want to be kind to others,
-              or decrease it if you have an API key with an appropriate consent from Entrez.
-        """
+        self.server = server
         self.tool = tool
         self.email = email
         self.api_key = api_key
         self.return_type = return_type
         self.minimal_interval = minimal_interval
-        self._batch_size: int = None
+        self._batch_size: Optional[int] = None
         self._batch_sleep_interval: int = 3
         self._last_request_time = None
         self.timeout = timeout
