@@ -300,7 +300,27 @@ EXAMPLES: Dict[Type[EntrezQuery], List[Example]] = {
                     )
                 ]
             ),
-            uri='db=pubmed&retmode=xml&bdata=proc+natl+acad+sci+u+s+a|1991|88|3248|mann+bj|Art1|%0Dscience|1987|235|182|palmenberg+ac|Art2|'
+            uri='ecitmatch.fcgi?db=pubmed&retmode=xml&bdata=proc+natl+acad+sci+u+s+a|1991|88|3248|mann+bj|Art1|%0Dscience|1987|235|182|palmenberg+ac|Art2|'
+        )
+    ],
+    SearchQuery: [
+        Example(
+            name='Find articles about human cancers',
+            query=SearchQuery(
+                term='cancer AND human[organism]',
+                database='pubmed',
+                max_results=10000
+            ),
+            uri='esearch.fcgi?db=pubmed&retmax=10000&term=cancer AND human[organism]'
+        ),
+        Example(
+            name='Search PubMed Central for free full text articles containing the query stem cells',
+            query=SearchQuery(
+                term='stem cells AND free fulltext[filter]',
+                database='pmc',
+                max_results=10000
+            ),
+            uri='esearch.fcgi?db=pmc&retmax=10000&term=stem cells AND free fulltext[filter]'
         )
     ]
 }

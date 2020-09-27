@@ -17,3 +17,13 @@ def test_codes():
 @pytest.mark.parametrize('example', EXAMPLES[queries.LinkQuery])
 def test_link_query(example: Example):
     assert example.query.full_uri() == example.uri
+
+
+@pytest.mark.parametrize('example', EXAMPLES[queries.SearchQuery])
+def test_search_query(example: Example):
+    assert example.query.full_uri() == example.uri
+
+
+@pytest.mark.parametrize('example', EXAMPLES[queries.CitationQuery])
+def test_citation_query(example: Example):
+    assert example.query.full_uri() == example.uri
