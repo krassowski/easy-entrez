@@ -1,8 +1,11 @@
 from dataclasses import dataclass
-from typing import Dict, Union, List, TypedDict
+from typing import Dict, Union, List
 try:
-    from typing import Literal, get_args
+    from typing import Literal, TypedDict, get_args
 except ImportError:
+    from typing import Dict
+    TypedDict = Dict
+
     class Literal:
         def __getitem__(self, parameters):
             return parameters
