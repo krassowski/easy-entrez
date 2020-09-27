@@ -22,7 +22,7 @@ if __name__ == '__main__':
         package_data={'easy_entrez': ['data/*.tsv', 'py.typed']},
         # required for mypy to work
         zip_safe=False,
-        version='0.2.0',
+        version='0.2.1',
         license='MIT',
         description='Python REST API for Entrez E-Utilities: stateless, easy to use, reliable.',
         long_description=get_long_description('README.md'),
@@ -44,7 +44,7 @@ if __name__ == '__main__':
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8'
         ],
-        install_requires=['requests'],
+        install_requires=['requests', 'typing_extensions', 'dataclasses'],
         extras_require={
             'with_progress_bars': ['tqdm']
         }
