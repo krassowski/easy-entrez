@@ -132,3 +132,6 @@ class Citation(TypedDict):
     author: str
     #: Identifier that will help you recognise the citation in the results, e.g. ‘Art1‘ or ‘Art2‘
     key: str
+
+
+DateType = Literal['modification', 'publication', 'entrez']

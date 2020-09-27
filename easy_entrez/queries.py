@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import date
 from typing import Dict, List, Iterable, Type
 from typing_extensions import Literal
 from warnings import warn
 
-from .types import ReturnType, EntrezDatabase, Command, Identifier, Example, Citation
+from .types import ReturnType, EntrezDatabase, Command, Identifier, Example, Citation, DateType
 from .data import entrez_databases, entrez_database_codes
 
 
@@ -83,10 +84,22 @@ class SearchQuery(EntrezQuery):
             Value must be a valid E-utility database name (default = :py:obj:`'pubmed'`).
         term: Entrez text query
         max_results: maximal number of results to return
+        within_last_n_days: search only for items with date specified by date_type within the last n days
+        date_type: the type of the date (e.g. modification or publication)
     """
     endpoint = 'esearch'
     term: str
     max_results: int
+    min_date: date = None
+    max_date: date = None
+    within_last_n_days: int = None
+    date_type: DateType = None
+
+    _date_type_map = {
+        'modification': 'mdat',
+        'publication': 'pdat',
+        'entrez': 'edat'
+    }
 
     def validate(self):
         super().validate()
@@ -95,8 +108,25 @@ class SearchQuery(EntrezQuery):
 
     def to_params(self) -> Dict[str, str]:
         params = super().to_params()
-        params['retmax'] = str(self.max_results)
         params['term'] = self.term
+        if self.within_last_n_days:
+            if not self.date_type:
+                raise ValueError('date_type is required when constraining the date range')
+            params['reldate'] = str(self.within_last_n_days)
+            if self.min_date or self.max_date:
+                raise ValueError('reldate and (min_date, max_date) cannot be used together')
+        if self.min_date or self.max_date:
+            if not (self.min_date and self.max_date):
+                raise ValueError('min_date and max_date must be used together')
+            if not self.date_type:
+                raise ValueError('date_type is required when constraining the date range')
+            params['min_date'] = self.min_date.isoformat().replace('-', '/')
+            params['max_date'] = self.max_date.isoformat().replace('-', '/')
+        if self.date_type:
+            if self.date_type not in self._date_type_map:
+                warn(f'Unknown date type. Did you mean any of: {list(self._date_type_map.keys())} ?')
+            params['datetype'] = self._date_type_map.get(self.date_type)
+        params['retmax'] = str(self.max_results)
         return params
 
     @property
@@ -311,7 +341,7 @@ EXAMPLES: Dict[Type[EntrezQuery], List[Example]] = {
                 database='pubmed',
                 max_results=10000
             ),
-            uri='esearch.fcgi?db=pubmed&retmax=10000&term=cancer AND human[organism]'
+            uri='esearch.fcgi?db=pubmed&term=cancer AND human[organism]&retmax=10000'
         ),
         Example(
             name='Search PubMed Central for free full text articles containing the query stem cells',
@@ -320,7 +350,21 @@ EXAMPLES: Dict[Type[EntrezQuery], List[Example]] = {
                 database='pmc',
                 max_results=10000
             ),
-            uri='esearch.fcgi?db=pmc&retmax=10000&term=stem cells AND free fulltext[filter]'
+            uri='esearch.fcgi?db=pmc&term=stem cells AND free fulltext[filter]&retmax=10000'
+        ),
+        Example(
+            name='Search in PubMed with the term cancer for abstracts that have an Entrez date within the last 60 days; retrieve the first 100 PMIDs',
+            query=SearchQuery(
+                term='cancer',
+                database='pubmed',
+                within_last_n_days=60,
+                date_type='entrez',
+                max_results=100,
+            ),
+            uri='esearch.fcgi?db=pubmed&term=cancer&reldate=60&datetype=edat&retmax=100'
+        ),
+        Example(
+            name='Search for articles published by krassowski between '
         )
     ]
 }
