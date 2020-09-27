@@ -1,6 +1,12 @@
 from dataclasses import dataclass
-from typing import Dict, Union, List, get_args
+from typing import Dict, Union, List
 from typing_extensions import TypedDict, Literal
+try:
+    from typing import get_args
+except ImportError:
+
+    def get_args(annotation):
+        return annotation.__args__
 
 from xml.etree import ElementTree
 
