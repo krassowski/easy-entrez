@@ -22,7 +22,7 @@ if __name__ == '__main__':
         package_data={'easy_entrez': ['data/*.tsv', 'py.typed']},
         # required for mypy to work
         zip_safe=False,
-        version='0.1.4',
+        version='0.2.0',
         license='MIT',
         description='Python REST API for Entrez E-Utilities: stateless, easy to use, reliable.',
         long_description=get_long_description('README.md'),
