@@ -21,7 +21,7 @@ def batches(data, size=100):
     ]
 
 
-def support_batches(func):
+def supports_batches(func):
     """
     Call the decorated functions with the collection from the first argument
     (second if counting with self) split into batches, resuming on failures
@@ -64,4 +64,15 @@ def support_batches(func):
         else:
             return func(self, collection, *args, **kwargs)
 
+    if not batches_support_wrapper.__doc__:
+        batches_support_wrapper.__doc__ = ''
+
+    batches_support_wrapper.__doc__ += '\n    Supports batch mode, see :py:meth:`~EntrezAPI.in_batches_of`.'
+
     return batches_support_wrapper
+
+
+
+
+
+

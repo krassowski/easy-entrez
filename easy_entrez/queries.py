@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Iterable
+from typing import Dict, List, Iterable, Type
 from typing_extensions import Literal
 from warnings import warn
 
@@ -178,7 +178,8 @@ class FetchQuery(SummaryQuery):
 
 @dataclass
 class LinkQuery(EntrezQuery):
-    """Functionality:
+    """
+    Functionality:
         - Returns UIDs linked to an input set of UIDs in either the same or a different Entrez database
         - Returns UIDs linked to other UIDs in the same Entrez database that match an Entrez query
         - Checks for the existence of Entrez links for a set of UIDs within the same database
@@ -200,6 +201,8 @@ class LinkQuery(EntrezQuery):
         ids: UID list. Either a single UID or a comma-delimited list of UIDs may be provided.
             All of the UIDs must be from the database specified by :py:obj:`database_from`
         command: ELink command mode. The command mode specifies which function ELink will perform.
+
+
     """
     # TODO: support cmd-specific parameters
     endpoint = 'elink'
@@ -246,7 +249,7 @@ class CitationQuery(EntrezQuery):
         return params
 
 
-EXAMPLES = {
+EXAMPLES: Dict[Type[EntrezQuery], List[Example]] = {
     LinkQuery: [
         Example(
             name='Link from protein to gene',
@@ -254,13 +257,40 @@ EXAMPLES = {
             uri='elink.fcgi?db=gene&dbfrom=protein&id=15718680,157427902&cmd=neighbor'
         ),
         Example(
-            name='Find related articles to PMID 20210808',
+            name='Find articles related to PMID 20210808',
             query=LinkQuery(database='pubmed', database_from='pubmed', ids=[20210808], command='neighbor_score'),
             uri='elink.fcgi?db=pubmed&dbfrom=pubmed&id=20210808&cmd=neighbor_score'
         )
     ]
 }
 
-LinkQuery.__doc__ += 'Examples:\n' + '\n'.join([
-    f'\t- {example.name}:\n\t\t>>> {example.query}\n' for example in EXAMPLES[LinkQuery]
-]) + ''
+
+def format_examples(examples, transformer=lambda x: x):
+    return '\n    Examples:\n' + '\n'.join([
+        f'        {example.name}\n\n        >>> {transformer(example.query)}\n'
+        for example in examples
+    ])
+
+
+LinkQuery.__raw_doc__ = LinkQuery.__doc__
+LinkQuery.__doc__ += format_examples(EXAMPLES[LinkQuery])
+
+
+def uses_query(query: Type[EntrezQuery]):
+
+    def decorator(func):
+
+        if not func.__doc__:
+            func.__doc__ = ''
+
+        if hasattr(query, '__raw_doc__'):
+            func.__doc__ += query.__raw_doc__ + format_examples(
+                EXAMPLES[query],
+                transformer=lambda q: str(q).replace(query.__name__, 'entrez_api.' + func.__name__)
+            )
+        else:
+            func.__doc__ += query.__doc__
+
+        return func
+
+    return decorator

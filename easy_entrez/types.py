@@ -12,7 +12,11 @@ from xml.etree import ElementTree
 
 from .data import entrez_databases
 
-JSONType = Union[str, int, float, bool, None, Dict[str, 'JSON'], List['JSON']]   # https://github.com/python/typing/issues/182
+# support minimal typing up to third level of nesting
+# (recursive typing not yet supported, see: https://github.com/python/typing/issues/182)
+JSONType0 = Union[str, int, float, bool, None, Dict[str, any], List[any]]
+JSONType1 = Union[str, int, float, bool, None, Dict[str, JSONType0], List[JSONType0]]
+JSONType = Union[str, int, float, bool, None, Dict[str, JSONType1], List[JSONType1]]
 DataType = Union[JSONType, ElementTree.Element]
 
 

@@ -5,12 +5,15 @@ from xml.etree import ElementTree
 from copy import copy
 from time import time, sleep
 
-from .batch import support_batches
-from .types import ReturnType, DataType, EntrezDatabase, CommandType
-from .queries import EntrezQuery, SearchQuery, SummaryQuery, FetchQuery, LinkQuery
+from .batch import supports_batches
+from .types import ReturnType, DataType, EntrezDatabase, CommandType, Citation
+from .queries import (
+    EntrezQuery, SearchQuery, SummaryQuery, FetchQuery, LinkQuery, InfoQuery, CitationQuery, uses_query,
+)
 
 
 class EntrezResponse:
+    """The wrapper around the Entrez response."""
 
     def __init__(self, query: EntrezQuery, response: Response, api: 'EntrezAPI'):
         self.query: EntrezQuery = query
@@ -113,6 +116,8 @@ class EntrezAPI:
 
         return EntrezResponse(query=query, response=response, api=self)
 
+    # TODO: make entrez response a generic and provide better typing of responses
+    @uses_query(SearchQuery)
     def search(
         self, term: str, max_results: int,
         database: EntrezDatabase = 'pubmed', min_date=None, max_date=None
@@ -127,7 +132,8 @@ class EntrezAPI:
         batch_mode._batch_sleep_interval = sleep_interval
         return batch_mode
 
-    @support_batches
+    @supports_batches
+    @uses_query(SummaryQuery)
     def summarize(
         self, ids: List[str], max_results: int,
         database: EntrezDatabase = 'pubmed'
@@ -135,7 +141,8 @@ class EntrezAPI:
         query = SummaryQuery(ids=ids, max_results=max_results, database=database)
         return self._request(query=query)
 
-    @support_batches
+    @supports_batches
+    @uses_query(FetchQuery)
     def fetch(
         self, ids: List[str], max_results: int,
         database: EntrezDatabase = 'pubmed', return_type: ReturnType = 'xml'
@@ -143,7 +150,8 @@ class EntrezAPI:
         query = FetchQuery(ids=ids, max_results=max_results, database=database, return_type=return_type)
         return self._request(query=query)
 
-    @support_batches
+    @supports_batches
+    @uses_query(LinkQuery)
     def link(
         self,
         # required
@@ -157,4 +165,14 @@ class EntrezAPI:
             ids=ids, database=database, database_from=database_from,
             command=command
         )
+        return self._request(query=query)
+
+    @uses_query(InfoQuery)
+    def get_info(self, database: EntrezDatabase = None):
+        query = InfoQuery(database=database)
+        return self._request(query=query)
+
+    @uses_query(CitationQuery)
+    def find_citations(self, citations: List[Citation], database='pubmed'):
+        query = CitationQuery(database=database, citations=citations)
         return self._request(query=query)
