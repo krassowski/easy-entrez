@@ -14,7 +14,6 @@ class EntrezQuery(ABC):
     Parameters:
         database: The database to query. Value must be a valid E-utility database name.
     """
-
     database: EntrezDatabase
     method = 'get'
     endpoint_suffix = '.fcgi'
@@ -29,7 +28,7 @@ class EntrezQuery(ABC):
         return f'{self.endpoint}{self.endpoint_suffix}'
 
     def validate(self):
-        if self.database not in entrez_database_codes:
+        if self.database not in entrez_database_codes and self.database is not None:
             warn(f'Unknown database: {self.database}')
 
     def __post_init__(self):
@@ -152,7 +151,7 @@ class SummaryQuery(EntrezQuery):
 @dataclass
 class FetchQuery(SummaryQuery):
     """
-    It enforces xml as a default return_type as JSON is not properly implemented by the eutilis server yet.
+    Note: FetchQuery enforces xml as a default return_type as JSON is not properly implemented by the eutilis server.
 
     Functionality:
         - Returns formatted data records for a list of input UIDs
@@ -221,7 +220,10 @@ class LinkQuery(EntrezQuery):
 
 @dataclass
 class CitationQuery(EntrezQuery):
-    """Functionality:
+    """
+    Note: enforces xml as it is the only supported :py:obj:`return_type` for the citation endpoint.
+
+    Functionality:
         - Retrieves PubMed IDs (PMIDs) that correspond to a set of input citations
 
     Parameters:
@@ -232,16 +234,18 @@ class CitationQuery(EntrezQuery):
 
     database: Literal['pubmed']
     citations: List[Citation]
+    return_type: ReturnType = 'xml'
 
     def to_params(self) -> Dict[str, str]:
         params = super().to_params()
+        params['retmode'] = self.return_type
         params['bdata'] = '%0D'.join([
             '|'.join([
-                citation['journal_title'].replace(' ', '+'),
+                citation['journal'].replace(' ', '+'),
                 str(citation['year']),
                 str(citation['volume']),
                 str(citation['first_page']),
-                citation['author_name'].replace(' ', '+'),
+                citation['author'].replace(' ', '+'),
                 citation['key'].replace(' ', '+')
             ]) + '|'
             for citation in self.citations
@@ -260,6 +264,43 @@ EXAMPLES: Dict[Type[EntrezQuery], List[Example]] = {
             name='Find articles related to PMID 20210808',
             query=LinkQuery(database='pubmed', database_from='pubmed', ids=[20210808], command='neighbor_score'),
             uri='elink.fcgi?db=pubmed&dbfrom=pubmed&id=20210808&cmd=neighbor_score'
+        ),
+        Example(
+            name='List all possible links from two protein GIs',
+            query=LinkQuery(database_from='protein', ids=[15718680, 157427902], command='acheck', database=None),
+            uri='elink.fcgi?dbfrom=protein&id=15718680,157427902&cmd=acheck'
+        ),
+        Example(
+            name='List all possible links from two protein GIs to PubMed',
+            query=LinkQuery(database_from='protein', ids=[15718680, 157427902], command='acheck', database='pubmed'),
+            uri='elink.fcgi?db=pubmed&dbfrom=protein&id=15718680,157427902&cmd=acheck'
+        )
+    ],
+    CitationQuery: [
+        Example(
+            name='Check PMIDs for two citations',
+            query=CitationQuery(
+                database='pubmed',
+                citations=[
+                    dict(
+                        journal='proc natl acad sci u s a',
+                        year=1991,
+                        volume=88,
+                        first_page=3248,
+                        author='mann bj',
+                        key='Art1'
+                    ),
+                    Citation(
+                        journal='science',
+                        year=1987,
+                        volume=235,
+                        first_page=182,
+                        author='palmenberg ac',
+                        key='Art2'
+                    )
+                ]
+            ),
+            uri='db=pubmed&retmode=xml&bdata=proc+natl+acad+sci+u+s+a|1991|88|3248|mann+bj|Art1|%0Dscience|1987|235|182|palmenberg+ac|Art2|'
         )
     ]
 }
@@ -272,8 +313,9 @@ def format_examples(examples, transformer=lambda x: x):
     ])
 
 
-LinkQuery.__raw_doc__ = LinkQuery.__doc__
-LinkQuery.__doc__ += format_examples(EXAMPLES[LinkQuery])
+for query_, examples_ in EXAMPLES.items():
+    query_.__raw_doc__ = query_.__doc__
+    query_.__doc__ += format_examples(examples_)
 
 
 def uses_query(query: Type[EntrezQuery]):

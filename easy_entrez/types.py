@@ -121,7 +121,7 @@ class Example:
 class Citation(TypedDict):
     """Dictionary with the citation input data having the following keys and values:"""
     #: Journal title, e.g. ‘science‘ or ‘proc natl acad sci u s a‘
-    journal_title: str
+    journal: str
     #: Year
     year: int
     #: Volume
@@ -129,6 +129,6 @@ class Citation(TypedDict):
     #: First page
     first_page: int
     #: Author name, e.g. ‘mann bj‘ or ‘palmenberg ac‘
-    author_name: str
+    author: str
     #: Identifier that will help you recognise the citation in the results, e.g. ‘Art1‘ or ‘Art2‘
     key: str
