@@ -1,5 +1,7 @@
 # easy-entrez
 
+[![Documentation Status](https://readthedocs.org/projects/easy-entrez/badge/?version=latest)](https://easy-entrez.readthedocs.io/en/latest/?badge=latest)
+
 Python REST API for Entrez E-Utilities, aiming to  be easy to use and reliable.
 
 While other packages attempt to use stateful extensions (queries with history) which is error-prone and led to misleading results, this implementation:
