@@ -68,7 +68,7 @@ _EntrezDatabaseType = Literal[
 
 def list_literal_values(type_annotation, modifier: lambda x: x):
     return '\n' + '\n'.join(
-        [f'\t- {modifier(arg)}' for arg in get_args(type_annotation)]
+        [f'- {modifier(arg)}' for arg in get_args(type_annotation)]
     )
 
 
@@ -96,6 +96,18 @@ _CommandType = Literal[
     'prlinks'
 ]
 
+command_descriptions = {
+    'neighbor': 'return a set of UIDs in *database* linked to the input UIDs in *database_from*.',
+    'neighbor_score': 'return a set of UIDs within the same database as the input UIDs along with computed similarity scores.',
+    'neighbor_history': 'post the output UIDs to the Entrez History server and returns a query_key and WebEnv corresponding to the location of the output set.',
+    'acheck': 'list all links available for a set of UIDs.',
+    'ncheck': 'check for the existence of links within the same database for a set of UIDs. These links are equivalent to setting *database* and *database_from* to the same value.',
+    'lcheck': 'check for the existence of external links (LinkOuts) for a set of UIDs.',
+    'llinks': 'for each input UID, list the URLs and attributes for the LinkOut providers that are not libraries.',
+    'llinkslib': 'for each input UID, list the URLs and attributes for *all* LinkOut providers including libraries.',
+    'prlinks': 'list the primary LinkOut provider for each input UID, or links directly to the LinkOut provider\'s web site for a single UID if *return_mode* is set to *ref*.'
+}
+
 
 class CommandType:
     """The command for the ELnk query, one of:
@@ -106,7 +118,7 @@ Command = CommandType()
 Command.__supertype__ = _CommandType
 CommandType.__doc__ += list_literal_values(
     _CommandType,
-    modifier=lambda arg: f':py:obj:`\'{arg}\'`'
+    modifier=lambda arg: f':py:obj:`\'{arg}\'`\n\t{command_descriptions[arg]}\n'
 )
 
 
