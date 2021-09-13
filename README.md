@@ -15,7 +15,7 @@ Easy-entrez:
 - does not use the stateful API as it is [error-prone](https://gitlab.com/ncbipy/entrezpy/-/issues/7) as seen on example of the alternative *entrezpy*.
 
 
-**Stats:** beta (pending tutorial write-up and documentation improvements before official release).
+**Status:** beta (pending tutorial write-up and documentation improvements before official release).
 
 ```python
 from easy_entrez import EntrezAPI
@@ -37,6 +37,43 @@ result.data
 See more in the [Demo notebook](./Demo.ipynb) and [documentation](https://easy-entrez.readthedocs.io/en/latest).
 
 For a real-world example (i.e. used for [this publication](https://www.frontiersin.org/articles/10.3389/fgene.2020.610798/full)) see notebooks in [multi-omics-state-of-the-field](https://github.com/krassowski/multi-omics-state-of-the-field) repository.
+
+#### Example: fetching genes for a variant from dbSNP 
+
+Fetch the SNP record for `rs6311`:
+
+```python
+rs6311 = entrez_api.fetch(['rs6311'], max_results=1, database='snp').data
+rs6311
+```
+
+Display the result:
+
+```python
+from xml.dom import minidom
+from xml.etree import ElementTree
+
+
+def xml_to_sting(element):
+    return (
+        minidom.parseString(ElementTree.tostring(element))
+        .toprettyxml(indent=' ' * 4)
+    )
+
+
+print(xml_to_sting(rs6311))
+```
+
+Find the gene names for `rs6311`:
+
+```python
+namespaces = {'ns0': 'https://www.ncbi.nlm.nih.gov/SNP/docsum'}
+genes = [
+    name.text
+    for name in rs6311.findall('.//ns0:GENE_E/ns0:NAME', namespaces)
+]
+print(genes)
+```
 
 
 ### Installation
