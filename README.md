@@ -43,7 +43,7 @@ For a real-world example (i.e. used for [this publication](https://www.frontiers
 Fetch the SNP record for `rs6311`:
 
 ```python
-rs6311 = entrez_api.fetch(['rs6311'], max_results=1, database='snp').data
+rs6311 = entrez_api.fetch(['rs6311'], max_results=1, database='snp').data[0]
 rs6311
 ```
 
@@ -74,6 +74,23 @@ genes = [
 ]
 print(genes)
 ```
+
+> `['HTR2A']`
+
+Fetch data for multiple variants at once:
+
+```python
+gene_names = {
+    'rs' + document_summary.get('uid'): [
+        element.text
+        for element in document_summary.findall('.//ns0:GENE_E/ns0:NAME', namespaces)
+    ]
+    for document_summary in entrez_api.fetch(['rs6311', 'rs662138'], max_results=10, database='snp').data
+}
+print(gene_names)
+```
+
+> `{'rs6311': ['HTR2A'], 'rs662138': ['SLC22A1']}`
 
 
 ### Installation
