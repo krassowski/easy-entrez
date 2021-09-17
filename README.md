@@ -10,7 +10,7 @@ Easy-entrez:
 
 - makes common tasks easy thanks to simple Pythonic API,
 - is typed and integrates well with mypy,
-- is tested on Windows, Mac and Linux across Python 3.6, 3.7, and 3.8,
+- is tested on Windows, Mac and Linux across Python 3.6, 3.7, 3.8 and 3.9,
 - is limited in scope, allowing to focus on the reliability of the core code,
 - does not use the stateful API as it is [error-prone](https://gitlab.com/ncbipy/entrezpy/-/issues/7) as seen on example of the alternative *entrezpy*.
 
@@ -80,12 +80,13 @@ print(genes)
 Fetch data for multiple variants at once:
 
 ```python
+result = entrez_api.fetch(['rs6311', 'rs662138'], max_results=10, database='snp')
 gene_names = {
     'rs' + document_summary.get('uid'): [
         element.text
         for element in document_summary.findall('.//ns0:GENE_E/ns0:NAME', namespaces)
     ]
-    for document_summary in entrez_api.fetch(['rs6311', 'rs662138'], max_results=10, database='snp').data
+    for document_summary in result.data
 }
 print(gene_names)
 ```
@@ -107,7 +108,7 @@ results.data['esearchresult']['idlist']
 
 > `['59296319', '17076752', '7336701', '4']`
 
-Or pass a dictionary (no validation of argument is performed, 'AND' conjunction is used):
+Or pass a dictionary (no validation of arguments is performed, `AND` conjunction is used):
 
 ```python
 results = entrez_api.search(
