@@ -2,17 +2,9 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-try:
-    from pypandoc import convert
-
-    def get_long_description(file_name):
-        return convert(file_name, 'rst', 'md')
-
-except ImportError:
-
-    def get_long_description(file_name):
-        with open(file_name) as f:
-            return f.read()
+def get_long_description(file_name):
+    with open(file_name) as f:
+        return f.read()
 
 
 if __name__ == '__main__':
@@ -26,6 +18,7 @@ if __name__ == '__main__':
         license='MIT',
         description='Python REST API for Entrez E-Utilities: stateless, easy to use, reliable.',
         long_description=get_long_description('README.md'),
+        long_description_content_type='text/markdown',
         author='Michal Krassowski',
         author_email='krassowski.michal+pypi@gmail.com',
         url='https://github.com/krassowski/easy-entrez',
