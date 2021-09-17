@@ -138,6 +138,7 @@ class EntrezAPI:
         self, ids: List[str], max_results: int,
         database: EntrezDatabase = 'pubmed'
     ):
+        self._ensure_list_like(ids)
         query = SummaryQuery(ids=ids, max_results=max_results, database=database)
         return self._request(query=query)
 
@@ -147,6 +148,7 @@ class EntrezAPI:
         self, ids: List[str], max_results: int,
         database: EntrezDatabase = 'pubmed', return_type: ReturnType = 'xml'
     ):
+        self._ensure_list_like(ids)
         query = FetchQuery(ids=ids, max_results=max_results, database=database, return_type=return_type)
         return self._request(query=query)
 
@@ -161,6 +163,7 @@ class EntrezAPI:
         # optional
         command: CommandType = 'neighbor'
     ):
+        self._ensure_list_like(ids)
         query = LinkQuery(
             ids=ids, database=database, database_from=database_from,
             command=command
@@ -176,3 +179,16 @@ class EntrezAPI:
     def find_citations(self, citations: List[Citation], database='pubmed'):
         query = CitationQuery(database=database, citations=citations)
         return self._request(query=query)
+
+    @staticmethod
+    def _ensure_list_like(ids: List[str]):
+        """Protect user from accidentally passing and ID, say `'142'` instead of a list,
+
+        like `['142']` as the former would actually be interpreted as three queries,
+        equivalent to: `['1', '2', '3']`.
+        """
+        for atomic_iterable_type in [str, bytes]:
+            if isinstance(ids, atomic_iterable_type):
+                raise ValueError(
+                    f'Received {atomic_iterable_type.__name__} but a list-like container of identifiers was expected'
+                )
