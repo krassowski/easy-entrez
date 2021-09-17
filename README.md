@@ -103,7 +103,7 @@ results = entrez_api.search(
     database='snp',
     max_results=10
 )
-results.data['esearchresult']['idlist']
+print(results.data['esearchresult']['idlist'])
 ```
 
 > `['59296319', '17076752', '7336701', '4']`
@@ -116,7 +116,7 @@ results = entrez_api.search(
     database='snp',
     max_results=10
 )
-results.data['esearchresult']['idlist']
+print(results.data['esearchresult']['idlist'])
 ```
 
 > `['59296319', '17076752', '7336701', '4']`
