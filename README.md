@@ -92,6 +92,37 @@ print(gene_names)
 
 > `{'rs6311': ['HTR2A'], 'rs662138': ['SLC22A1']}`
 
+#### Example: obtaining the SNP rs ID number from chromosomal position
+
+You can use the query string directly:
+
+```python
+results = entrez_api.search(
+    '13[CHROMOSOME] AND human[ORGANISM] AND 31873085[POSITION]',
+    database='snp',
+    max_results=10
+)
+results.data['esearchresult']['idlist']
+```
+
+> `['59296319', '17076752', '7336701', '4']`
+
+Or pass a dictionary (no validation of argument is performed, 'AND' conjunction is used):
+
+```python
+results = entrez_api.search(
+    dict(chromosome=13, organism='human', position=31873085),
+    database='snp',
+    max_results=10
+)
+results.data['esearchresult']['idlist']
+```
+
+> `['59296319', '17076752', '7336701', '4']`
+
+The base position should use the latest genome assembly (GRCh38 at the time of writing);
+you can use the position in previous assembly coordinates by replacing `POSITION` with `POSITION_GRCH37`.
+For more information of the arguments accepted by the SNP database see the [entrez help page](https://www.ncbi.nlm.nih.gov/snp/docs/entrez_help/) on NCBI website.
 
 ### Installation
 

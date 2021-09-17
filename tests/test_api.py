@@ -1,5 +1,6 @@
 from pytest import raises
 from easy_entrez import EntrezAPI
+from easy_entrez.api import _match_all
 
 
 entrez_api = EntrezAPI(
@@ -9,6 +10,14 @@ entrez_api = EntrezAPI(
     # 2 seconds interval as these tests are less urgent than any actual research
     minimal_interval=2
 )
+
+
+def test_query_helpers():
+    assert (
+        _match_all(chromosome=13, organism='human', position=31873085)
+        ==
+        '13[chromosome] AND human[organism] AND 31873085[position]'
+    )
 
 
 def test_search():

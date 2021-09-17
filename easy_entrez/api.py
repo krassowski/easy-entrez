@@ -1,6 +1,6 @@
 import requests
 from requests import Response
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from xml.etree import ElementTree
 from copy import copy
 from time import time, sleep
@@ -10,6 +10,13 @@ from .types import ReturnType, DataType, EntrezDatabase, CommandType, Citation
 from .queries import (
     EntrezQuery, SearchQuery, SummaryQuery, FetchQuery, LinkQuery, InfoQuery, CitationQuery, uses_query,
 )
+
+
+def _match_all(**kwargs):
+    return ' AND '.join([
+        f'{value}[{field}]'
+        for field, value in kwargs.items()
+    ])
 
 
 class EntrezResponse:
@@ -119,9 +126,12 @@ class EntrezAPI:
     # TODO: make entrez response a generic and provide better typing of responses
     @uses_query(SearchQuery)
     def search(
-        self, term: str, max_results: int,
+        self, term: Union[str, dict], max_results: int,
         database: EntrezDatabase = 'pubmed', min_date=None, max_date=None
     ):
+        if isinstance(term, dict):
+            term = _match_all(**term)
+
         assert not min_date and not max_date  # TODO
         query = SearchQuery(term=term, max_results=max_results, database=database)
         return self._request(query=query)
