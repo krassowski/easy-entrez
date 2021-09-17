@@ -22,20 +22,24 @@ if __name__ == '__main__':
         author='Michal Krassowski',
         author_email='krassowski.michal+pypi@gmail.com',
         url='https://github.com/krassowski/easy-entrez',
-        keywords=['entrez', 'pubmed', 'e-utilities', 'ncbi', 'rest', 'api'],
+        keywords=['entrez', 'pubmed', 'e-utilities', 'ncbi', 'rest', 'api', 'dbsnp', 'literature', 'mining'],
         classifiers=[
             'Development Status :: 4 - Beta',
-            'License :: OSI Approved :: MIT License',
+            'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
             'Operating System :: Microsoft :: Windows',
             'Operating System :: POSIX :: Linux',
+            'Operating System :: MacOS',
             'Topic :: Utilities',
+            'Topic :: Database',
             'Topic :: Scientific/Engineering :: Bio-Informatics',
             'Topic :: Software Development :: Libraries :: Python Modules',
+            'Typing :: Typed',
             'Intended Audience :: Developers',
             'Intended Audience :: Science/Research',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
-            'Programming Language :: Python :: 3.8'
+            'Programming Language :: Python :: 3.8',
+            'Programming Language :: Python :: 3.9'
         ],
         install_requires=['requests', 'typing_extensions', 'dataclasses>="0.7";python_version<"3.7"'],
         extras_require={
