@@ -54,14 +54,14 @@ from xml.dom import minidom
 from xml.etree import ElementTree
 
 
-def xml_to_sting(element):
+def xml_to_string(element):
     return (
         minidom.parseString(ElementTree.tostring(element))
         .toprettyxml(indent=' ' * 4)
     )
 
 
-print(xml_to_sting(rs6311))
+print(xml_to_string(rs6311))
 ```
 
 Find the gene names for `rs6311`:
