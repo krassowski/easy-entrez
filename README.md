@@ -93,6 +93,32 @@ print(gene_names)
 
 > `{'rs6311': ['HTR2A'], 'rs662138': ['SLC22A1']}`
 
+#### Example: obtaining the chromosomal position from SNP rsID number
+
+```python
+from pandas import DataFrame
+
+result = entrez_api.fetch(['rs6311', 'rs662138'], max_results=10, database='snp')
+
+variant_positions = DataFrame([
+    {
+        'id': 'rs' + document_summary.get('uid'),
+        'chromosome': chromosome,
+        'position': position
+    }
+    for document_summary in result.data
+    for chrom_and_position in document_summary.findall('.//ns0:CHRPOS', namespaces)
+    for chromosome, position in [chrom_and_position.text.split(':')]
+])
+
+variant_positions
+````
+
+> |    | id       |   chromosome |   position |
+> |---:|:---------|-------------:|-----------:|
+> |  0 | rs6311   |           13 |   46897343 |
+> |  1 | rs662138 |            6 |  160143444 |
+
 
 #### Example: obtaining the SNP rs ID number from chromosomal position
 
