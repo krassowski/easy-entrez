@@ -43,6 +43,7 @@ if __name__ == '__main__':
         ],
         install_requires=['requests', 'typing_extensions', 'dataclasses>="0.7";python_version<"3.7"'],
         extras_require={
-            'with_progress_bars': ['tqdm']
+            'with_progress_bars': ['tqdm'],
+            'parsing': ['tqdm']
         }
     )
