@@ -1,6 +1,7 @@
 import requests
 from requests import Response
-from typing import Dict, Generic, Type, TypeVar, List, Optional, Union, TYPE_CHECKING
+from typing import Dict, Generic, Type, TypeVar, List, Optional, Union
+from typing_extensions import TypeGuard
 from xml.etree import ElementTree
 from copy import copy
 from time import time, sleep
@@ -17,12 +18,6 @@ def _match_all(**kwargs):
         f'{value}[{field}]'
         for field, value in kwargs.items()
     ])
-
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeGuard
-else:
-    TypeGuard = Generic
 
 
 EntrezQueryT = TypeVar('EntrezQueryT', bound=EntrezQuery)
