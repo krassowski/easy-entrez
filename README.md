@@ -50,16 +50,7 @@ rs6311
 Display the result:
 
 ```python
-from xml.dom import minidom
-from xml.etree import ElementTree
-
-
-def xml_to_string(element):
-    return (
-        minidom.parseString(ElementTree.tostring(element))
-        .toprettyxml(indent=' ' * 4)
-    )
-
+from easy_entrez.parsing import xml_to_string
 
 print(xml_to_string(rs6311))
 ```
@@ -112,7 +103,7 @@ variant_positions = DataFrame([
 ])
 
 variant_positions
-````
+```
 
 > |    | id       |   chromosome |   position |
 > |---:|:---------|-------------:|-----------:|

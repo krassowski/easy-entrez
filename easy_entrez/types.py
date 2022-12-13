@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Union, List
+from typing import Dict, Union, List, TypeVar, Any
 from typing_extensions import TypedDict, Literal
 try:
     from typing import get_args
@@ -12,19 +12,21 @@ except ImportError:
             # Python 3.6
             return []
 
+
 from xml.etree import ElementTree
 
 from .data import entrez_databases
 
+
 # support minimal typing up to third level of nesting
 # (recursive typing not yet supported, see: https://github.com/python/typing/issues/182)
-JSONType0 = Union[str, int, float, bool, None, Dict[str, any], List[any]]
+JSONType0 = Union[str, int, float, bool, None, Dict[str, Any], List[Any]]
 JSONType1 = Union[str, int, float, bool, None, Dict[str, JSONType0], List[JSONType0]]
 JSONType = Union[str, int, float, bool, None, Dict[str, JSONType1], List[JSONType1]]
-DataType = Union[JSONType, ElementTree.Element]
-
 
 ReturnType = Literal['json', 'xml']
+DataType = TypeVar('DataType', bound=Union[JSONType, ElementTree.Element])
+
 
 _EntrezDatabaseType = Literal[
     'bioproject',

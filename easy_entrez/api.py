@@ -1,6 +1,6 @@
 import requests
 from requests import Response
-from typing import Dict, List, Optional, Union
+from typing import Dict, Generic, Type, TypeVar, List, Optional, Union, TYPE_CHECKING
 from xml.etree import ElementTree
 from copy import copy
 from time import time, sleep
@@ -19,11 +19,20 @@ def _match_all(**kwargs):
     ])
 
 
-class EntrezResponse:
+if TYPE_CHECKING:
+    from typing_extensions import TypeGuard
+else:
+    TypeGuard = Generic
+
+
+EntrezQueryT = TypeVar('EntrezQueryT', bound=EntrezQuery)
+
+
+class EntrezResponse(Generic[DataType, EntrezQueryT]):
     """The wrapper around the Entrez response."""
 
-    def __init__(self, query: EntrezQuery, response: Response, api: 'EntrezAPI'):
-        self.query: EntrezQuery = query
+    def __init__(self, query: EntrezQueryT, response: Response, api: 'EntrezAPI'):
+        self.query: EntrezQueryT = query
         self.response: Response = response
         self.api: 'EntrezAPI' = api
 
@@ -50,6 +59,16 @@ class EntrezResponse:
         return f'<EntrezResponse status={response.status_code} for {query.summary}>'
 
 
+def is_xml_response(response: EntrezResponse) -> TypeGuard[EntrezResponse[ElementTree.Element, EntrezQueryT]]:
+    """Determine if response is XML."""
+    return response.content_type == 'xml'
+
+
+def is_response_for(response: EntrezResponse, query: Type[EntrezQueryT]) -> TypeGuard[EntrezResponse[ElementTree.Element, EntrezQueryT]]:
+    """Determine if response is for given type of query."""
+    return issubclass(response.query, query)
+
+
 class EntrezAPI:
     """
     Parameters:
@@ -67,6 +86,7 @@ class EntrezAPI:
         timeout: The timeout in seconds (default 10 seconds).
         server: The server address.
     """
+
     def __init__(
         self, tool: str, email: str, api_key=None,
         return_type: ReturnType = 'json',
