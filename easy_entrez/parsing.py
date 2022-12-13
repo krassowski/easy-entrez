@@ -30,7 +30,7 @@ class VariantSet:
     alt_frequencies: DataFrame
 
 
-def parser_dbsnp_variants(snps_result: EntrezResponse) -> VariantSet:
+def parse_dbsnp_variants(snps_result: EntrezResponse, verbose: bool = False) -> VariantSet:
     if DataFrame is None:
         raise ValueError('pandas is required for parser_dbsnp_variants')
     if not is_xml_response(snps_result):
@@ -45,10 +45,16 @@ def parser_dbsnp_variants(snps_result: EntrezResponse) -> VariantSet:
     for i, snp in enumerate(snps):
         error = snp.find('.//ns0:error', namespaces)
         if error is not None:
-            warn(f'Failed to retrive {snps_result.query.ids[i]} due to error: {error.text}')
+            warn(f'Failed to retrieve {snps_result.query.ids[i]} due to error: {error.text}')
             continue
         rs_id = snp.find('.//ns0:SNP_ID', namespaces).text
-        spdi = snp.find('.//ns0:SPDI', namespaces).text.split(',')
+        spdi_text = snp.find('.//ns0:SPDI', namespaces).text
+        if not spdi_text:
+            warn(f'Failed to retrieve {snps_result.query.ids[i]}: SPDI not found')
+            if verbose:
+                print(xml_to_string(snp))
+            continue
+        spdi = spdi_text.split(',')
         chrom, pos = snp.find('.//ns0:CHRPOS', namespaces).text.split(':')
         chrom_prev, pos_prev = snp.find('.//ns0:CHRPOS_PREV_ASSM', namespaces).text.split(':')
         sig_class = snp.find('.//ns0:FXN_CLASS', namespaces).text
@@ -69,17 +75,25 @@ def parser_dbsnp_variants(snps_result: EntrezResponse) -> VariantSet:
             assert len(studies) == 1
             study = list(studies)[0].text
             for frequency in maf.findall('.//ns0:FREQ', namespaces):
-                match = re.match(
-                    r'(?P<alt>(?:A|C|T|G|-)+)=(?P<frequency>\d.\d*)/(?P<count>\d+)',
+                match_obj = re.match(
+                    r'(?P<alt>(?:A|C|T|G|-)+)=(?P<frequency>\d+.\d*)/(?P<count>\d+)',
                     frequency.text
-                ).groupdict()
+                )
+                if not match_obj:
+                    warn(f'Unrecognised variant FREQ format: {frequency.text} for rs{rs_id}')
+                    continue
+                match = match_obj.groupdict()
+                freq = float(match['frequency'])
+                if freq > 1:
+                    warn(f'frequency {freq} > 1 for variant: rs{rs_id}')
+                    continue
                 alt_frequencies.append({
                     'rs_id': f'rs{rs_id}',
                     'allele': match['alt'],
-                    'source_frequency': match['frequency'],
+                    'source_frequency': freq,
                     'total_count': int(match['count']),
                     'study': study,
-                    'count': float(match['frequency']) * int(match['count']),
+                    'count': freq * int(match['count']),
                 })
 
         results.append({
