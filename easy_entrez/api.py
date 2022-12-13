@@ -61,7 +61,7 @@ def is_xml_response(response: EntrezResponse) -> TypeGuard[EntrezResponse[Elemen
 
 def is_response_for(response: EntrezResponse, query: Type[EntrezQueryT]) -> TypeGuard[EntrezResponse[ElementTree.Element, EntrezQueryT]]:
     """Determine if response is for given type of query."""
-    return issubclass(response.query, query)
+    return isinstance(response.query, query)
 
 
 class EntrezAPI:
