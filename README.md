@@ -143,6 +143,31 @@ The base position should use the latest genome assembly (GRCh38 at the time of w
 you can use the position in previous assembly coordinates by replacing `POSITION` with `POSITION_GRCH37`.
 For more information of the arguments accepted by the SNP database see the [entrez help page](https://www.ncbi.nlm.nih.gov/snp/docs/entrez_help/) on NCBI website.
 
+### Example: find PubMed ID from DOI
+
+When searching GWAS catalog PMID is needed over DOI. You can covert one to the other using:
+
+```python
+def doi_term(doi: str) -> str:
+    """Prepare DOI for PubMed search"""
+    doi = (
+        doi
+        .replace('http://', 'https://')
+        .replace('https://doi.org/', '')
+    )
+    return f'"{doi}"[Publisher ID]'
+
+
+result = entrez_api.search(
+    doi_term('https://doi.org/10.3389/fcell.2021.626821'),
+    database='pubmed',
+    max_results=1
+)
+result.data['esearchresult']['idlist']
+```
+
+> `['33834021']`
+
 ### Installation
 
 Requires Python 3.6+. Install with:
