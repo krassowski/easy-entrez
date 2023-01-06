@@ -41,4 +41,3 @@ def test_fetch():
 
     with raises(ValueError, match='Received str but a list-like container of identifiers was expected'):
         entrez_api.fetch('4', max_results=1, database='snp')
-

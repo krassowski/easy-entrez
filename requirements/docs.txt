@@ -1,5 +1,6 @@
 -r ./minimal.txt
-sphinx==3.2.1
+sphinx<6.0
 pydata-sphinx-theme
 sphinx-autodoc-typehints
 sphinx-copybutton
+myst-parser

@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Easy-entrez'
-copyright = '2020, Michał Krassowski'
+copyright = '2023, Michał Krassowski'
 author = 'Michał Krassowski'
 
 # -- General configuration ---------------------------------------------------
@@ -32,6 +32,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
     'sphinx_copybutton',
+    'myst_parser',
     # 'sphinx.ext.linkcode'
     # todo something like https://github.com/numpy/numpy/blob/master/doc/source/conf.py?
 ]
