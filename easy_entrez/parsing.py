@@ -17,20 +17,40 @@ except ImportError:
 namespaces = {'ns0': 'https://www.ncbi.nlm.nih.gov/SNP/docsum'}
 
 
-def xml_to_string(element):
+def xml_to_string(element, indent=' ' * 4):
+    """Convert provided XML element to pretty indented string.
+
+    Parameters:
+        element: the XML element to convert (`data` attribute of entrez result)
+        indent: the indentation to use, 4 spaces by default
+    """
     return (
         minidom.parseString(ElementTree.tostring(element))
-        .toprettyxml(indent=' ' * 4)
+        .toprettyxml(indent=indent)
     )
 
 
 @dataclass
 class VariantSet:
+    """Result of parsing with `parse_dbsnp_variants()`."""
+    #: Coordinates of the SNPs in the genome and consequence (e.g. intro_variant).
     coordinates: DataFrame
+    #: Frequencies of the alternative alleles.
     alt_frequencies: DataFrame
+    #: Preferred identifiers map (old → new); old != new for merged variants.
+    preferred_ids: dict
+
+    def __repr__(self):
+        return f'<VariantSet with {len(self.coordinates)} variants>'
 
 
 def parse_dbsnp_variants(snps_result: EntrezResponse, verbose: bool = False) -> VariantSet:
+    """Parse coordinates, frequencies and preferred IDs of dbSNP variants.
+
+    Parameters:
+        snps_result: result of fetch query in XML format, usually to `'snp'` database
+        verbose: whether to print out full problematic XML if SPDI cannot be parsed
+    """
     if DataFrame is None:
         raise ValueError('pandas is required for parser_dbsnp_variants')
     if not is_xml_response(snps_result):
@@ -41,13 +61,14 @@ def parse_dbsnp_variants(snps_result: EntrezResponse, verbose: bool = False) -> 
 
     results = []
     alt_frequencies = []
+    preferred_id = {}
 
     for i, snp in enumerate(snps):
         error = snp.find('.//ns0:error', namespaces)
         if error is not None:
             warn(f'Failed to retrieve {snps_result.query.ids[i]} due to error: {error.text}')
             continue
-        rs_id = snp.find('.//ns0:SNP_ID', namespaces).text
+        rs_id = snp.attrib['uid']
         spdi_text = snp.find('.//ns0:SPDI', namespaces).text
         if not spdi_text:
             warn(f'Failed to retrieve {snps_result.query.ids[i]}: SPDI not found')
@@ -58,6 +79,13 @@ def parse_dbsnp_variants(snps_result: EntrezResponse, verbose: bool = False) -> 
         chrom, pos = snp.find('.//ns0:CHRPOS', namespaces).text.split(':')
         chrom_prev, pos_prev = snp.find('.//ns0:CHRPOS_PREV_ASSM', namespaces).text.split(':')
         sig_class = snp.find('.//ns0:FXN_CLASS', namespaces).text
+
+        merged_into = snp.find('.//ns0:SNP_ID', namespaces).text
+        if rs_id != merged_into:
+            was_merged = snp.find('.//ns0:MERGED_SORT', namespaces).text
+            assert was_merged == '1'
+
+        preferred_id[f'rs{rs_id}'] = f'rs{merged_into}'
 
         expected_ref = {
             s.split(':')[-2]
@@ -101,13 +129,17 @@ def parse_dbsnp_variants(snps_result: EntrezResponse, verbose: bool = False) -> 
             'ref': list(expected_ref)[0],
             'alts': ','.join(expected_alt),
             'chrom': chrom,
-            'pos': float(pos),
+            'pos': int(pos),
             'chrom_prev': chrom_prev,
-            'pos_prev': float(pos_prev),
+            'pos_prev': int(pos_prev),
             'consequence': sig_class
         })
 
     return VariantSet(
         coordinates=DataFrame(results).set_index('rs_id'),
-        alt_frequencies=DataFrame(alt_frequencies)
+        alt_frequencies=DataFrame(alt_frequencies),
+        preferred_ids=preferred_id
     )
+
+
+__all__ = ['VariantSet', 'parse_dbsnp_variants', 'xml_to_string', 'namespaces']

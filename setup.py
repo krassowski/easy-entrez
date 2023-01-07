@@ -14,7 +14,7 @@ if __name__ == '__main__':
         package_data={'easy_entrez': ['data/*.tsv', 'py.typed']},
         # required for mypy to work
         zip_safe=False,
-        version='0.3.3',
+        version='0.3.4',
         license='MIT',
         description='Python REST API for Entrez E-Utilities: stateless, easy to use, reliable.',
         long_description=get_long_description('README.md'),
@@ -24,7 +24,7 @@ if __name__ == '__main__':
         url='https://github.com/krassowski/easy-entrez',
         keywords=['entrez', 'pubmed', 'e-utilities', 'ncbi', 'rest', 'api', 'dbsnp', 'literature', 'mining'],
         classifiers=[
-            'Development Status :: 4 - Beta',
+            'Development Status :: 5 - Production/Stable',
             'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
             'Operating System :: Microsoft :: Windows',
             'Operating System :: POSIX :: Linux',
@@ -39,11 +39,13 @@ if __name__ == '__main__':
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
-            'Programming Language :: Python :: 3.9'
+            'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.10',
+            'Programming Language :: Python :: 3.11'
         ],
         install_requires=['requests', 'typing_extensions', 'dataclasses>="0.7";python_version<"3.7"'],
         extras_require={
             'with_progress_bars': ['tqdm'],
-            'parsing': ['tqdm']
+            'with_parsing_utils': ['pandas']
         }
     )

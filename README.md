@@ -15,7 +15,7 @@ Easy-entrez:
 - does not use the stateful API as it is [error-prone](https://gitlab.com/ncbipy/entrezpy/-/issues/7) as seen on example of the alternative *entrezpy*.
 
 
-**Status:** beta (pending tutorial write-up and documentation improvements before official release).
+### Examples
 
 ```python
 from easy_entrez import EntrezAPI
@@ -38,7 +38,7 @@ See more in the [Demo notebook](./Demo.ipynb) and [documentation](https://easy-e
 
 For a real-world example (i.e. used for [this publication](https://www.frontiersin.org/articles/10.3389/fgene.2020.610798/full)) see notebooks in [multi-omics-state-of-the-field](https://github.com/krassowski/multi-omics-state-of-the-field) repository.
 
-#### Example: fetching genes for a variant from dbSNP 
+#### Fetching genes for a variant from dbSNP
 
 Fetch the SNP record for `rs6311`:
 
@@ -84,7 +84,7 @@ print(gene_names)
 
 > `{'rs6311': ['HTR2A'], 'rs662138': ['SLC22A1']}`
 
-#### Example: obtaining the chromosomal position from SNP rsID number
+#### Obtaining the chromosomal position from SNP rsID number
 
 ```python
 from pandas import DataFrame
@@ -111,7 +111,47 @@ variant_positions
 > |  1 | rs662138 |            6 |  160143444 |
 
 
-#### Example: obtaining the SNP rs ID number from chromosomal position
+#### Converting full variation/mutation data to tabular format
+
+Parsing utilities can quickly extract the data to a `VariantSet` object
+holding pandas `DataFrame`s with coordinates and alternative alleles frequencies:
+
+```python
+from easy_entrez.parsing import parse_dbsnp_variants
+
+variants = parse_dbsnp_variants(result)
+variants
+```
+
+> `<VariantSet with 2 variants>`
+
+To get the coordinates:
+
+```python
+variants.coordinates
+```
+
+> | rs_id    | ref   | alts   |   chrom |       pos |   chrom_prev |   pos_prev | consequence                                                                  |
+> |:---------|:------|:-------|--------:|----------:|-------------:|-----------:|:-----------------------------------------------------------------------------|
+>| rs6311   | C     | A,T    |      13 |  46897343 |           13 |   47471478 | upstream_transcript_variant,intron_variant,genic_upstream_transcript_variant |
+>| rs662138 | C     | G      |       6 | 160143444 |            6 |  160564476 | intron_variant                                                               |
+
+For frequencies:
+
+```python
+variants.alt_frequencies.head(5)  # using head to only display first 5 for brevity
+```
+
+> |    | rs_id   | allele   |   source_frequency |   total_count | study       |     count |
+> |---:|:--------|:---------|-------------------:|--------------:|:------------|----------:|
+> |  0 | rs6311  | T        |           0.44349  |          2221 | 1000Genomes |   984.991 |
+> |  1 | rs6311  | T        |           0.411261 |          1585 | ALSPAC      |   651.849 |
+> |  2 | rs6311  | T        |           0.331696 |          1486 | Estonian    |   492.9   |
+> |  3 | rs6311  | T        |           0.35     |            14 | GENOME_DK   |     4.9   |
+> |  4 | rs6311  | T        |           0.402529 |         56309 | GnomAD      | 22666     |
+
+
+#### Obtaining the SNP rs ID number from chromosomal position
 
 You can use the query string directly:
 
@@ -143,7 +183,7 @@ The base position should use the latest genome assembly (GRCh38 at the time of w
 you can use the position in previous assembly coordinates by replacing `POSITION` with `POSITION_GRCH37`.
 For more information of the arguments accepted by the SNP database see the [entrez help page](https://www.ncbi.nlm.nih.gov/snp/docs/entrez_help/) on NCBI website.
 
-### Example: find PubMed ID from DOI
+#### Find PubMed ID from DOI
 
 When searching GWAS catalog PMID is needed over DOI. You can covert one to the other using:
 
@@ -183,14 +223,17 @@ If you wish to enable (optional, tqdm-based) progress bars use:
 pip install easy-entrez[with_progress_bars]
 ```
 
-### Alternatives:
+If you wish to enable (optional, pandas-based) parsing utilities use:
+
+```bash
+pip install easy-entrez[with_parsing_utils]
+```
+
+### Alternatives
 
 You might want to try:
 
 - [biopython.Entrez](https://biopython.org/docs/1.74/api/Bio.Entrez.html) - biopython is a heavy dependency, but probably good choice if you already use it
 - [pubmedpy](https://github.com/dhimmel/pubmedpy) - provides interesting utilities for parsing the responses
 - [entrez](https://github.com/jordibc/entrez) - appears to have a comparable scope but quite different API
-
-I have tried and do not recommend:
-
-- [entrezpy](https://gitlab.com/ncbipy/entrezpy) - in addition to the history problems, watch out for [documentation issues](https://gitlab.com/ncbipy/entrezpy/-/issues/8) and basically [no reaction](https://gitlab.com/ncbipy/entrezpy/-/merge_requests/1) to pull requests.
+- [entrezpy](https://gitlab.com/ncbipy/entrezpy) - this one did not work well for me (hence this package), but may have improved since

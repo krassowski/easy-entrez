@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Easy-entrez documentation
-=======================================
+.. include:: ../README.md
+   :parser: myst_parser.sphinx_
 
 .. toctree::
    :maxdepth: 2
@@ -12,8 +12,8 @@ Easy-entrez documentation
 
    usage
    queries
+   parsing
    types
-
 
 
 Indices and tables
