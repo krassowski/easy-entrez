@@ -1,10 +1,14 @@
 import pytest
-from typing import Dict, Literal, Union
+from typing import Dict, Union
 from dataclasses import dataclass
 from xml.etree.ElementTree import Element, fromstring
 from easy_entrez.parsing import parse_dbsnp_variants, VariantSet
 from easy_entrez.queries import FetchQuery
-
+try:
+    from typing import Literal
+except ImportError:
+    # python <=3.7
+    Literal = Union
 
 @dataclass
 class DummyResponse:
