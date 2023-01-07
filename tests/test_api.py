@@ -9,8 +9,8 @@ entrez_api = EntrezAPI(
     'easy-entrez-test',
     'krassowski.michal+easyentrez@mail.com',
     return_type='json',
-    # 2 seconds interval as these tests are less urgent than any actual research
-    minimal_interval=2
+    # 3 seconds interval as these tests are less urgent than any actual research
+    minimal_interval=3
 )
 
 
@@ -41,3 +41,14 @@ def test_fetch():
 
     with raises(ValueError, match='Received str but a list-like container of identifiers was expected'):
         entrez_api.fetch('4', max_results=1, database='snp')
+
+
+def test_link():
+    # https://github.com/krassowski/easy-entrez/issues/2
+    result = entrez_api.link(
+        database=None,
+        ids=[15718680, 157427902],
+        database_from='protein',
+        command='acheck'
+    )
+    assert result.data
