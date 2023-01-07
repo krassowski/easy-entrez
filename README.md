@@ -3,6 +3,7 @@
 ![tests](https://github.com/krassowski/easy-entrez/workflows/tests/badge.svg)
 ![CodeQL](https://github.com/krassowski/easy-entrez/workflows/CodeQL/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/easy-entrez/badge/?version=latest)](https://easy-entrez.readthedocs.io/en/latest/?badge=latest)
+[![DOI](https://zenodo.org/badge/272182307.svg)](https://zenodo.org/badge/latestdoi/272182307)
 
 Python REST API for Entrez E-Utilities, aiming to  be easy to use and reliable.
 
