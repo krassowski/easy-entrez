@@ -2,7 +2,7 @@ import pytest
 from typing import Dict, Union
 from dataclasses import dataclass
 from xml.etree.ElementTree import Element, fromstring
-from easy_entrez.parsing import parse_dbsnp_variants, VariantSet
+from easy_entrez.parsing import parse_dbsnp_variants, VariantSet, parse_docsum
 from easy_entrez.queries import FetchQuery
 try:
     from typing import Literal
@@ -15,6 +15,25 @@ class DummyResponse:
     query: FetchQuery
     content_type: Literal['json', 'xml']
     data: Union[Element, Dict]
+
+
+DOCSUM_CODING = "HGVS=NC_000012.12:g.21178699A&gt;G,NC_000012.11:g.21331633A&gt;G,NG_011745.1:g.52506A&gt;G,NM_006446.5:c.605A&gt;G,NM_006446.4:c.605A&gt;G,NP_006437.3:p.Glu202Gly|SEQ=[A/G]|LEN=1|GENE=SLCO1B1:10599"
+
+
+def test_docsum():
+    assert parse_docsum(DOCSUM_CODING) == {
+        'HGVS': [
+            'NC_000012.12:g.21178699A>G',
+            'NC_000012.11:g.21331633A>G',
+            'NG_011745.1:g.52506A>G',
+            'NM_006446.5:c.605A>G',
+            'NM_006446.4:c.605A>G',
+            'NP_006437.3:p.Glu202Gly'
+        ],
+        'SEQ': '[A/G]',
+        'LEN': 1,
+        'GENE': 'SLCO1B1:10599'
+    }
 
 
 @pytest.mark.optional
@@ -49,6 +68,11 @@ def test_parse_two_snps():
     assert frequencies.source_frequency.max() < 1
     assert frequencies.total_count.min() > 0
     assert '1000Genomes' in set(frequencies.study)
+
+    summary = variant_set.summary
+    assert len(summary) == 2
+    assert set(summary.index) == {'rs6311', 'rs662138'}
+    assert set(summary.columns) == {'HGVS', 'SEQ', 'LEN', 'GENE'}
 
 
 @pytest.mark.optional

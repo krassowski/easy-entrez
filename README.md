@@ -184,6 +184,71 @@ The base position should use the latest genome assembly (GRCh38 at the time of w
 you can use the position in previous assembly coordinates by replacing `POSITION` with `POSITION_GRCH37`.
 For more information of the arguments accepted by the SNP database see the [entrez help page](https://www.ncbi.nlm.nih.gov/snp/docs/entrez_help/) on NCBI website.
 
+#### Obtaining amino acids change information for variants in given range
+
+First we search for dbSNP rs identifiers for variants in given region:
+
+```python
+dbsnp_ids = (
+    entrez_api
+    .search(
+        '12[CHROMOSOME] AND human[ORGANISM] AND 21178600:21178720[POSITION]',
+        database='snp',
+        max_results=100
+    )
+    .data
+    ['esearchresult']
+    ['idlist']
+)
+```
+
+Then fetch the variant data for identifiers:
+
+```python
+variant_data = entrez_api.fetch(
+    ['rs' + rs_id for rs_id in dbsnp_ids],
+    max_results=10,
+    database='snp'
+)
+```
+
+And parse the data, extracting the HGVS out of summary:
+
+```python
+from easy_entrez.parsing import parse_dbsnp_variants
+from pandas import Series
+
+
+def select_protein_hgvs(items):
+    return [
+        [sequence, hgvs]
+        for entry in items
+        for sequence, hgvs in [entry.split(':')]
+        if hgvs.startswith('p.')
+    ]
+
+
+protein_hgvs = (
+    parse_dbsnp_variants(variant_data)
+    .summary
+    .HGVS
+    .apply(select_protein_hgvs)
+    .explode()
+    .dropna()
+    .apply(Series)
+    .rename(columns={0: 'sequence', 1: 'hgvs'})
+)
+protein_hgvs.head()
+```
+
+> | rs_id        | sequence    | hgvs        |
+> |:-------------|:------------|:------------|
+> | rs1940853486 | NP_006437.3 | p.Gly203Ter |
+> | rs1940853414 | NP_006437.3 | p.Glu202Gly |
+> | rs1940853378 | NP_006437.3 | p.Glu202Lys |
+> | rs1940853299 | NP_006437.3 | p.Lys201Thr |
+> | rs1940852987 | NP_006437.3 | p.Asp198Glu |
+
 #### Find PubMed ID from DOI
 
 When searching GWAS catalog PMID is needed over DOI. You can covert one to the other using:

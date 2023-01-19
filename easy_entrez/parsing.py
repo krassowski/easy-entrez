@@ -39,9 +39,23 @@ class VariantSet:
     alt_frequencies: DataFrame
     #: Preferred identifiers map (old → new); old != new for merged variants.
     preferred_ids: dict
+    #: Data from DOCSUM field including GENE, HGVS, etc.
+    summary: DataFrame
 
     def __repr__(self):
         return f'<VariantSet with {len(self.coordinates)} variants>'
+
+
+def parse_docsum(docsum: str) -> dict:
+    result = {}
+    for entry in docsum.split('|'):
+        key, value = entry.split('=', maxsplit=1)
+        result[key] = value
+    if 'HGVS' in result:
+        result['HGVS'] = result['HGVS'].replace('&gt;', '>').split(',')
+    if 'LEN' in result:
+        result['LEN'] = float(result['LEN'])
+    return result
 
 
 def parse_dbsnp_variants(snps_result: EntrezResponse, verbose: bool = False) -> VariantSet:
@@ -62,6 +76,7 @@ def parse_dbsnp_variants(snps_result: EntrezResponse, verbose: bool = False) -> 
     results = []
     alt_frequencies = []
     preferred_id = {}
+    summaries = []
 
     for i, snp in enumerate(snps):
         error = snp.find('.//ns0:error', namespaces)
@@ -79,6 +94,16 @@ def parse_dbsnp_variants(snps_result: EntrezResponse, verbose: bool = False) -> 
         chrom, pos = snp.find('.//ns0:CHRPOS', namespaces).text.split(':')
         chrom_prev, pos_prev = snp.find('.//ns0:CHRPOS_PREV_ASSM', namespaces).text.split(':')
         sig_class = snp.find('.//ns0:FXN_CLASS', namespaces).text
+
+        doc_sum = snp.find('.//ns0:DOCSUM', namespaces).text
+        try:
+            doc_sum = parse_docsum(doc_sum)
+            summaries.append({
+                **doc_sum,
+                'rs_id': f'rs{rs_id}'
+            })
+        except Exception as e:
+            warn(f'Failed to parse DOCSUM: {e}')
 
         merged_into = snp.find('.//ns0:SNP_ID', namespaces).text
         if rs_id != merged_into:
@@ -138,7 +163,8 @@ def parse_dbsnp_variants(snps_result: EntrezResponse, verbose: bool = False) -> 
     return VariantSet(
         coordinates=DataFrame(results).set_index('rs_id'),
         alt_frequencies=DataFrame(alt_frequencies),
-        preferred_ids=preferred_id
+        preferred_ids=preferred_id,
+        summary=DataFrame(summaries).set_index('rs_id')
     )
 
 
