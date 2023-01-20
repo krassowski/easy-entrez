@@ -4,12 +4,13 @@ from dataclasses import dataclass
 from warnings import warn
 from xml.dom import minidom
 from xml.etree import ElementTree
+from typing import Union, Dict
 
 from .api import EntrezResponse, is_xml_response, is_response_for
 from .queries import FetchQuery
 
 try:
-    from pandas import DataFrame
+    from pandas import DataFrame, concat
 except ImportError:
     DataFrame = None
 
@@ -58,13 +59,31 @@ def parse_docsum(docsum: str) -> dict:
     return result
 
 
-def parse_dbsnp_variants(snps_result: EntrezResponse, verbose: bool = False) -> VariantSet:
+def parse_dbsnp_variants(snps_result: Union[EntrezResponse, Dict[tuple, EntrezResponse]], verbose: bool = False) -> VariantSet:
     """Parse coordinates, frequencies and preferred IDs of dbSNP variants.
 
     Parameters:
         snps_result: result of fetch query in XML format, usually to `'snp'` database
         verbose: whether to print out full problematic XML if SPDI cannot be parsed
     """
+    if isinstance(snps_result, dict):
+        coordinates = []
+        alt_frequencies = []
+        preferred_ids = {}
+        summaries = []
+        for result in snps_result.values():
+            parsed = parse_dbsnp_variants(result)
+            coordinates.append(parsed.coordinates)
+            alt_frequencies.append(parsed.alt_frequencies)
+            preferred_ids.update(parsed.preferred_ids)
+            summaries.append(parsed.alt_frequencies)
+        return VariantSet(
+            coordinates=concat(coordinates),
+            alt_frequencies=concat(alt_frequencies),
+            preferred_ids=preferred_ids,
+            summary=concat(summaries)
+        )
+
     if DataFrame is None:
         raise ValueError('pandas is required for parser_dbsnp_variants')
     if not is_xml_response(snps_result):
