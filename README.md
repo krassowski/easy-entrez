@@ -249,6 +249,20 @@ protein_hgvs.head()
 > | rs1940853299 | NP_006437.3 | p.Lys201Thr |
 > | rs1940852987 | NP_006437.3 | p.Asp198Glu |
 
+#### Fetching more than 10 000 entries
+
+Use `in_batches_of` method to fetch more than 10k entries (e.g. `variant_ids`):
+
+```python
+snps_result = (
+    entrez.api
+    .in_batches_of(1_000)
+    .fetch(variant_ids, max_results=5_000, database='snp')
+)
+```
+
+The result is a dictionary with keys being identifiers used in each batch (because the Entrez API does not always return the indentifiers back) and values representing the result. You can use `parse_dbsnp_variants` directly on this dictionary.
+
 #### Find PubMed ID from DOI
 
 When searching GWAS catalog PMID is needed over DOI. You can covert one to the other using:

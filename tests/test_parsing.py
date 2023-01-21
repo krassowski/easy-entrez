@@ -76,6 +76,17 @@ def test_parse_two_snps():
 
 
 @pytest.mark.optional
+def test_parse_batch():
+    response = DummyResponse(
+        query=FetchQuery(ids=['rs6311', 'rs662138'], database='snp', max_results=10),
+        content_type='xml',
+        data=fromstring(TWO_SNPS)
+    )
+    variant_set = parse_dbsnp_variants({('rs6311', 'rs662138'): response})
+    assert type(variant_set) == VariantSet
+
+
+@pytest.mark.optional
 def test_merged_variant_solving():
     response = DummyResponse(
         query=FetchQuery(ids=['rs59679468'], database='snp', max_results=10),
