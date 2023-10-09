@@ -142,13 +142,17 @@ class EntrezAPI:
     @uses_query(SearchQuery)
     def search(
         self, term: Union[str, dict], max_results: int,
-        database: EntrezDatabase = 'pubmed', min_date=None, max_date=None
+        database: EntrezDatabase = 'pubmed', min_date=None, max_date=None,
+        ignore_max_results_limit: bool = False
     ):
         if isinstance(term, dict):
             term = _match_all(**term)
 
         assert not min_date and not max_date  # TODO
-        query = SearchQuery(term=term, max_results=max_results, database=database)
+        query = SearchQuery(
+            term=term, max_results=max_results, database=database,
+            ignore_max_results_limit=ignore_max_results_limit
+        )
         return self._request(query=query)
 
     def in_batches_of(self, size: int = 100, sleep_interval: int = 3):
@@ -161,20 +165,27 @@ class EntrezAPI:
     @uses_query(SummaryQuery)
     def summarize(
         self, ids: List[str], max_results: int,
-        database: EntrezDatabase = 'pubmed'
+        database: EntrezDatabase = 'pubmed', ignore_max_results_limit: bool = False
     ):
         self._ensure_list_like(ids)
-        query = SummaryQuery(ids=ids, max_results=max_results, database=database)
+        query = SummaryQuery(
+            ids=ids, max_results=max_results, database=database,
+            ignore_max_results_limit=ignore_max_results_limit
+        )
         return self._request(query=query)
 
     @supports_batches
     @uses_query(FetchQuery)
     def fetch(
         self, ids: List[str], max_results: int,
-        database: EntrezDatabase = 'pubmed', return_type: ReturnType = 'xml'
+        database: EntrezDatabase = 'pubmed', return_type: ReturnType = 'xml',
+        ignore_max_results_limit: bool = False
     ):
         self._ensure_list_like(ids)
-        query = FetchQuery(ids=ids, max_results=max_results, database=database, return_type=return_type)
+        query = FetchQuery(
+            ids=ids, max_results=max_results, database=database,
+            return_type=return_type, ignore_max_results_limit=ignore_max_results_limit
+        )
         return self._request(query=query)
 
     @supports_batches
