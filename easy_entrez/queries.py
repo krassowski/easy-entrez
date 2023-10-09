@@ -90,8 +90,8 @@ class SearchQuery(EntrezQuery):
 
     def validate(self):
         super().validate()
-        if self.max_results > 100_000:
-            raise ValueError('Fetching more than 100,000 results is not implemented')
+        if self.max_results > 10_000:
+            raise ValueError('Fetching more than 10,000 results is not implemented')
 
     def to_params(self) -> Dict[str, str]:
         params = super().to_params()
