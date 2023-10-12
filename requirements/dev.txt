@@ -1,5 +1,4 @@
 -r ./minimal.txt
 -r ./optional.txt
--r ./docs.txt
 pytest
 pytest-cov
