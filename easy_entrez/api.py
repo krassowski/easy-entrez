@@ -5,8 +5,9 @@ from typing_extensions import TypeGuard
 from xml.etree import ElementTree
 from copy import copy
 from time import time, sleep
+from warnings import warn
 
-from .batch import supports_batches
+from .batch import supports_batches, supports_pagination
 from .types import ReturnType, DataType, EntrezDatabase, CommandType, Citation
 from .queries import (
     EntrezQuery, SearchQuery, SummaryQuery, FetchQuery, LinkQuery, InfoQuery, CitationQuery, uses_query,
@@ -97,6 +98,8 @@ class EntrezAPI:
         self.minimal_interval = minimal_interval
         self._batch_size: Optional[int] = None
         self._batch_sleep_interval: int = 3
+        self._page_size: Optional[int] = None
+        self._page_sleep_interval: int = 3
         self._last_request_time = None
         self.timeout = timeout
 
@@ -138,17 +141,23 @@ class EntrezAPI:
 
         return EntrezResponse(query=query, response=response, api=self)
 
-    # TODO: make entrez response a generic and provide better typing of responses
+    # TODO: make entrez response a generic and provide better typing of response
+    @supports_pagination
     @uses_query(SearchQuery)
     def search(
-        self, term: Union[str, dict], max_results: int,
-        database: EntrezDatabase = 'pubmed', min_date=None, max_date=None
+        self, term: Union[str, dict], max_results: Optional[int] = None,
+        database: EntrezDatabase = 'pubmed', min_date=None, max_date=None,
+        resume_from: Optional[int] = None
     ):
         if isinstance(term, dict):
             term = _match_all(**term)
 
         assert not min_date and not max_date  # TODO
-        query = SearchQuery(term=term, max_results=max_results, database=database)
+        self._ensure_max_results(max_results)
+        query = SearchQuery(
+          term=term, max_results=max_results, database=database,
+          resume_from=resume_from
+        )
         return self._request(query=query)
 
     def in_batches_of(self, size: int = 100, sleep_interval: int = 3):
@@ -156,6 +165,13 @@ class EntrezAPI:
         batch_mode._batch_size = size
         batch_mode._batch_sleep_interval = sleep_interval
         return batch_mode
+
+    def page_by_page(self, size: int = 100, sleep_interval: int = 3):
+        """Experimental pagination mode allowing to download all search results page by page."""
+        pagination_mode = copy(self)
+        pagination_mode._page_size = size
+        pagination_mode._page_sleep_interval = sleep_interval
+        return pagination_mode
 
     @supports_batches
     @uses_query(SummaryQuery)
@@ -217,3 +233,17 @@ class EntrezAPI:
                 raise ValueError(
                     f'Received {atomic_iterable_type.__name__} but a list-like container of identifiers was expected'
                 )
+
+    def _ensure_max_results(self, max_results):
+        if self._page_size is None and max_results is None:
+            raise ValueError(
+              'Please specify `max_results`, or use pagination mode'
+              ' `api.page_by_page().search(<your arguments>)`'
+            )
+        if self._page_size is not None and max_results is None:
+            warn('`max_results` has no effect in pagination mode')
+        if max_results > 10_000:
+            raise ValueError(
+              'Fetching more than 10,000 results requires enabling pagination'
+              ' with `api.page_by_page().search(<your arguments>)`'
+            )

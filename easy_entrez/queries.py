@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Iterable, Type
+from typing import Dict, List, Iterable, Optional, Type
 from typing_extensions import Literal
 from warnings import warn
 
@@ -86,16 +86,14 @@ class SearchQuery(EntrezQuery):
     """
     endpoint = 'esearch'
     term: str
-    max_results: int
-
-    def validate(self):
-        super().validate()
-        if self.max_results > 100_000:
-            raise ValueError('Fetching more than 100,000 results is not implemented')
+    max_results: Optional[int] = None
+    resume_from: Optional[int] = None
 
     def to_params(self) -> Dict[str, str]:
         params = super().to_params()
         params['retmax'] = str(self.max_results)
+        if self.resume_from is not None:
+            params['retstart'] = str(self.resume_from)
         params['term'] = self.term
         return params
 
