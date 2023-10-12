@@ -11,7 +11,7 @@ Easy-entrez:
 
 - makes common tasks easy thanks to simple Pythonic API,
 - is typed and integrates well with mypy,
-- is tested on Windows, Mac and Linux across Python 3.7, 3.8, 3.9 and 3.10,
+- is tested on Windows, Mac and Linux across Python 3.7, 3.8, 3.9, 3.10 and 3.11
 - is limited in scope, allowing to focus on the reliability of the core code,
 - does not use the stateful API as it is [error-prone](https://gitlab.com/ncbipy/entrezpy/-/issues/7) as seen on example of the alternative *entrezpy*.
 
