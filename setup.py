@@ -46,6 +46,13 @@ if __name__ == '__main__':
         install_requires=['requests', 'typing_extensions', 'dataclasses>="0.7";python_version<"3.7"'],
         extras_require={
             'with_progress_bars': ['tqdm'],
-            'with_parsing_utils': ['pandas']
+            'with_parsing_utils': ['pandas'],
+            'docs': [
+                'sphinx<6.0',
+                'pydata-sphinx-theme',
+                'sphinx-autodoc-typehints',
+                'sphinx-copybutton',
+                'myst-parser'
+            ]
         }
     )
