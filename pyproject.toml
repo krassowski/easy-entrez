@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+markers = [
+    "optional: marks tests as optional (deselect with '-m \"not optional\"')",
+]
