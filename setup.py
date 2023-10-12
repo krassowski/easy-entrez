@@ -36,14 +36,13 @@ if __name__ == '__main__':
             'Typing :: Typed',
             'Intended Audience :: Developers',
             'Intended Audience :: Science/Research',
-            'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
             'Programming Language :: Python :: 3.10',
             'Programming Language :: Python :: 3.11'
         ],
-        install_requires=['requests', 'typing_extensions', 'dataclasses>="0.7";python_version<"3.7"'],
+        install_requires=['requests', 'typing_extensions'],
         extras_require={
             'with_progress_bars': ['tqdm'],
             'with_parsing_utils': ['pandas'],
