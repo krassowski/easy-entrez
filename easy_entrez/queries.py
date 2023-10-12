@@ -82,16 +82,22 @@ class SearchQuery(EntrezQuery):
         database: Database to search.
             Value must be a valid E-utility database name (default = :py:obj:`'pubmed'`).
         term: Entrez text query
-        max_results: maximal number of results to return
+        max_results: Maximal number of results to return. Limited to 10'000, following
+            the eUtils documentation.
+        ignore_max_results_limit: Ignore the upper limit placed on max_results.
+            Experimentation has shown that some databases allow for higher limits, but
+            as this is not documented, setting higher limits needs to be explicitly
+            enabled here. Use at your own risk of hard to predict errors.
     """
     endpoint = 'esearch'
     term: str
     max_results: int
+    ignore_max_results_limit: bool = False
 
     def validate(self):
         super().validate()
-        if self.max_results > 100_000:
-            raise ValueError('Fetching more than 100,000 results is not implemented')
+        if self.max_results > 10_000 and not self.ignore_max_results_limit:
+            raise ValueError('Fetching more than 10,000 results is not implemented')
 
     def to_params(self) -> Dict[str, str]:
         params = super().to_params()
@@ -124,16 +130,22 @@ class SummaryQuery(EntrezQuery):
             There is no set maximum for the number of UIDs that can be passed to ESummary.
             To comply with the recommendation of using HTTP POST method if lists of UIDs for ESummary is long,
             the method is by default set to `post`.
-        max_results: maximal number of results to return
+        max_results: Maximal number of results to return. Limited to 10'000, following
+            the eUtils documentation.
+        ignore_max_results_limit: Ignore the upper limit placed on max_results.
+            Experimentation has shown that some databases allow for higher limits, but
+            as this is not documented, setting higher limits needs to be explicitly
+            enabled here. Use at your own risk of hard to predict errors.
     """
     endpoint = 'esummary'
     method = 'post'
     ids: List[Identifier]
     max_results: int
+    ignore_max_results_limit: bool = False
 
     def validate(self):
         super().validate()
-        if self.max_results > 10_000:
+        if self.max_results > 10_000 and not self.ignore_max_results_limit:
             raise ValueError('Fetching more than 10,000 results is not implemented')
 
     def to_params(self) -> Dict[str, str]:
