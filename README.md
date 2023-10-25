@@ -15,6 +15,14 @@ Easy-entrez:
 - is limited in scope, allowing to focus on the reliability of the core code,
 - does not use the stateful API as it is [error-prone](https://gitlab.com/ncbipy/entrezpy/-/issues/7) as seen on example of the alternative *entrezpy*.
 
+### Installation
+
+```bash
+# Basic installation
+pip install easy-entrez
+# Include tqdm for progress bars
+pip install easy-entrez[with_progress_bars]
+```
 
 ### Examples
 
