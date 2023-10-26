@@ -1,9 +1,10 @@
 # easy-entrez
 
-![tests](https://github.com/krassowski/easy-entrez/workflows/tests/badge.svg)
+![Tests](https://github.com/krassowski/easy-entrez/workflows/tests/badge.svg)
 ![CodeQL](https://github.com/krassowski/easy-entrez/workflows/CodeQL/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/easy-entrez/badge/?version=latest)](https://easy-entrez.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/272182307.svg)](https://zenodo.org/badge/latestdoi/272182307)
+![Python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
 
 Python REST API for Entrez E-Utilities, aiming to  be easy to use and reliable.
 
@@ -11,10 +12,9 @@ Easy-entrez:
 
 - makes common tasks easy thanks to simple Pythonic API,
 - is typed and integrates well with mypy,
-- is tested on Windows, Mac and Linux across Python 3.7, 3.8, 3.9, 3.10 and 3.11
+- is tested on Windows, Mac and Linux across Python 3.7 to 3.12,
 - is limited in scope, allowing to focus on the reliability of the core code,
 - does not use the stateful API as it is [error-prone](https://gitlab.com/ncbipy/entrezpy/-/issues/7) as seen on example of the alternative *entrezpy*.
-
 
 ### Examples
 
