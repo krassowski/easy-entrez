@@ -269,7 +269,7 @@ When searching GWAS catalog PMID is needed over DOI. You can covert one to the o
 
 ```python
 def doi_term(doi: str) -> str:
-    """Prepare DOI for PubMed search"""
+    """Clean a DOI string by removing URL prefix."""
     doi = (
         doi
         .replace('http://', 'https://')
@@ -283,27 +283,31 @@ result = entrez_api.search(
     database='pubmed',
     max_results=1
 )
-result.data['esearchresult']['idlist']
+try:
+    print(result.data['esearchresult']['idlist'])
+except KeyError as exc:
+    raise ValueError(
+        f"Unexpected response data blob {result.data}."
+    ) from exc
 ```
 
 > `['33834021']`
 
 ### Installation
 
-Requires Python 3.6+. Install with:
-
+Requires Python 3.6+ (though only 3.7+ is tested). Install with:
 
 ```bash
 pip install easy-entrez
 ```
 
-If you wish to enable (optional, tqdm-based) progress bars use:
+If you wish to enable (optional, `tqdm`-based) progress bars use:
 
 ```bash
 pip install easy-entrez[with_progress_bars]
 ```
 
-If you wish to enable (optional, pandas-based) parsing utilities use:
+If you wish to enable (optional, `pandas`-based) parsing utilities use:
 
 ```bash
 pip install easy-entrez[with_parsing_utils]
