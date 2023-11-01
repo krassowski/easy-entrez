@@ -283,12 +283,7 @@ result = entrez_api.search(
     database='pubmed',
     max_results=1
 )
-try:
-    print(result.data['esearchresult']['idlist'])
-except KeyError as exc:
-    raise ValueError(
-        f"Unexpected response data blob {result.data}."
-    ) from exc
+print(result.data['esearchresult']['idlist'])
 ```
 
 > `['33834021']`
