@@ -92,11 +92,14 @@ class EntrezAPI:
     """
 
     def __init__(
-        self, tool: str, email: str, api_key=None,
-        return_type: ReturnType = 'json',
+        self,
+        tool: str,
+        email: str,
+        api_key: Optional[str] = None,
+        return_type: ReturnType = "json",
         minimal_interval: float = 0.334,
         timeout: float = 10,
-        server: str = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
+        server: str = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/",
     ):
         self.server = server
         self.tool = tool
