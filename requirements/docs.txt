@@ -1,0 +1,6 @@
+myst-parser
+pydata-sphinx-theme
+sphinx
+sphinx-autodoc-typehints
+sphinx-copybutton
+sphinx_rtd_theme
