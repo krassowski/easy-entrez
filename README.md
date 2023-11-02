@@ -308,6 +308,16 @@ If you wish to enable (optional, `pandas`-based) parsing utilities use:
 pip install easy-entrez[with_parsing_utils]
 ```
 
+### Contributing
+
+To build the documentation locally:
+
+```bash
+pip install -e .[docs]
+sphinx-build docs docs/_build
+open docs/_build/index.html
+```
+
 ### Alternatives
 
 You might want to try:
