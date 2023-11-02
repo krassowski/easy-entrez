@@ -67,12 +67,19 @@ def is_response_for(response: EntrezResponse, query: Type[EntrezQueryT]) -> Type
 class EntrezAPI:
     """
     Parameters:
-        tool: Name of application making the E-utility call. Value must be a string with no internal spaces.
-        email: E-mail address of the E-utility user.
+        tool: Name of application making the E-utility call, for NCBI internal tracking.
+            Value must be a string with no internal spaces. Specify this value to
+            correspond with the name of the end-use application.
+            For example, the biopython library just uses "biopython" as the tool name, see |BioEntrez|_.
+            Please see the Frequency, Timing and Registration of E-utility URL Requests section of |EUtilsHelp|_
+            for more information on this parameter.
+        email: E-mail address of the E-utility user, for NCBI internal tracking/communications.
             Value must be a string with no internal spaces, and should be a valid e-mail address.
-        api_key: Since December 2018, NCBI began enforcing the practice of using an API key
-            for users that post more than 3 requests per second.
-            Please see `Chapter 2 <https://www.ncbi.nlm.nih.gov/books/n/helpeutils/chapter2/>`_ for a full discussion of this policy.
+            Please see the Frequency, Timing and Registration of E-utility URL Requests section of |EUtilsHelp|_
+            for more information on this parameter.
+        api_key: Since December 1st 2018, NCBI began enforcing the practice of using an
+            API key for users that post more than 3 requests per second.
+            Please see the API Keys section of |EUtilsHelp|_ for a full discussion of this policy.
         return_type: Retrieval type. Determines the format of the returned output.
         minimal_interval: The time interval (seconds) to be enforced between consecutive requests;
           by default slightly over 1/3 of a second to comply with the Entrez guidelines,
@@ -80,14 +87,22 @@ class EntrezAPI:
           or decrease it if you have an API key with an appropriate consent from Entrez.
         timeout: The timeout in seconds (default 10 seconds).
         server: The server address.
+
+    .. |EUtilsHelp| replace:: Entrez Programming Utilities Help
+    .. _EUtilsHelp: https://www.ncbi.nlm.nih.gov/books/NBK25497/
+    .. |BioEntrez| replace:: ``Bio.Entrez``
+    .. _BioEntrez: https://github.com/biopython/biopython/blob/biopython-181/Bio/Entrez/__init__.py#L141
     """
 
     def __init__(
-        self, tool: str, email: str, api_key=None,
-        return_type: ReturnType = 'json',
+        self,
+        tool: str,
+        email: str,
+        api_key: Optional[str] = None,
+        return_type: ReturnType = "json",
         minimal_interval: float = 0.334,
         timeout: float = 10,
-        server: str = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
+        server: str = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/",
     ):
         self.server = server
         self.tool = tool
