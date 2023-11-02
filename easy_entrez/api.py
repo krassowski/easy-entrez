@@ -68,8 +68,9 @@ class EntrezAPI:
     """
     Parameters:
         tool: Name of application making the E-utility call, for NCBI internal tracking.
-            Value must be a string with no internal spaces.
-            Example values are "easy-entrez" or "biopython".
+            Value must be a string with no internal spaces. Specify this value to
+            correspond with the name of the end-use application.
+            For example, the biopython library just uses "biopython" as the tool name, see |BioEntrez|_.
             Please see the Frequency, Timing and Registration of E-utility URL Requests section of |EUtilsHelp|_
             for more information on this parameter.
         email: E-mail address of the E-utility user, for NCBI internal tracking/communications.
@@ -89,6 +90,8 @@ class EntrezAPI:
 
     .. |EUtilsHelp| replace:: Entrez Programming Utilities Help
     .. _EUtilsHelp: https://www.ncbi.nlm.nih.gov/books/NBK25497/
+    .. |BioEntrez| replace:: ``Bio.Entrez``
+    .. _BioEntrez: https://github.com/biopython/biopython/blob/biopython-181/Bio/Entrez/__init__.py#L141
     """
 
     def __init__(
