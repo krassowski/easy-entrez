@@ -49,11 +49,12 @@ if __name__ == '__main__':
             'with_progress_bars': ['tqdm'],
             'with_parsing_utils': ['pandas'],
             'docs': [
-                'sphinx<6.0',
+                'myst-parser',
                 'pydata-sphinx-theme',
+                'sphinx<6.0',
                 'sphinx-autodoc-typehints',
                 'sphinx-copybutton',
-                'myst-parser'
+                'sphinx_rtd_theme',
             ]
         }
     )
