@@ -29,14 +29,14 @@ def supports_batches(func):
     """
 
     @wraps(func)
-    def batches_support_wrapper(self: 'EntrezAPI', collection: Sequence, *args, **kwargs):
+    def batches_support_wrapper(self: 'EntrezAPI', ids: Sequence, *args, **kwargs):
         size = self._batch_size
         interval = self._batch_sleep_interval
         if size is not None:
             assert isinstance(size, int)
             by_batch = {}
 
-            for i, batch in enumerate(tqdm(batches(collection, size=size))):
+            for i, batch in enumerate(tqdm(batches(ids, size=size))):
                 done = False
 
                 while not done:
@@ -62,7 +62,7 @@ def supports_batches(func):
                 sleep(interval)
             return by_batch
         else:
-            return func(self, collection, *args, **kwargs)
+            return func(self, ids, *args, **kwargs)
 
     if not batches_support_wrapper.__doc__:
         batches_support_wrapper.__doc__ = ''
